@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">transect</string>
+    <string name="intro">Welcome to Hui Kilo Kohola transect app and Mahalo for helping us monitor humpback whales in Hawaii. This app will Help provide you with a simple means to log humpback whale sightings during a linear transit between two points meeting the following criteria:</string>
+    <string name="detailed_instructions">Detailed Instructions</string>
+    <string name="summary_stats">Summary Stats</string>
+    <string name="start_new_transect">Start New Transect</string>
+    <string name="bearing">Bearing:</string>
+</resources>

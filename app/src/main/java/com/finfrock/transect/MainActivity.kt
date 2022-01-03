@@ -2,53 +2,58 @@ package com.finfrock.transect
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import androidx.core.content.ContentProviderCompat.requireContext
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import android.util.Log
+import android.view.View
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.main_activity)
+        val viewPager: ViewPager2 = findViewById(R.id.pager)
+        val tabLayout: TabLayout = findViewById(R.id.tab_layout)
 
-        val bearingTextField: TextInputEditText = findViewById(R.id.bearing_edit_text)
-        bearingTextField.addTextChangedListener(BearingTextWatcher(bearingTextField))
+        viewPager.adapter = ScreenSlidePagerAdapter(this)
 
-        val vesselLayout: TextInputLayout = findViewById(R.id.vessel)
-        val vesselNames = listOf("Aloha Kai", "CaneFire II", "Kai Kanani", "Kohola", "Ohua", "Trilogy V")
-        val vesselAdapter = ArrayAdapter(this, R.layout.list_item, vesselNames)
-        (vesselLayout.editText as? AutoCompleteTextView)?.setAdapter(vesselAdapter)
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tab.text = when(position) {
+                0 -> "Start"
+                1 -> "Summary"
+                2 -> "Instructions"
+                else -> "None"
+            }
+        }.attach()
 
-        val observer1Layout: TextInputLayout = findViewById(R.id.observer1)
-        val observerItems = listOf("Ed Lyman", "Grant Thompson", "Jason Moore", "Lance", "Rachel Finn")
-        val observerAdapter = ArrayAdapter(this, R.layout.list_item, observerItems)
-        (observer1Layout.editText as? AutoCompleteTextView)?.setAdapter(observerAdapter)
 
-        val observer2Layout: TextInputLayout = findViewById(R.id.observer2)
-        (observer2Layout.editText as? AutoCompleteTextView)?.setAdapter(observerAdapter)
+        val topAppBar: MaterialToolbar = findViewById(R.id.topAppBar)
+
+        topAppBar.setNavigationOnClickListener {
+            Log.i("lancewf", "clicked")
+        }
     }
 
-    class BearingTextWatcher(private val textInput: TextInputEditText) : TextWatcher {
-        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-        }
+    /**
+     * A simple pager adapter that represents 5 ScreenSlidePageFragment objects, in
+     * sequence.
+     */
+    private inner class ScreenSlidePagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
+        override fun getItemCount(): Int = 3
 
-        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            val bearing = p0.toString().toIntOrNull()
-            when {
-                p0.isNullOrBlank() -> this.textInput.error = "can not be empty"
-                bearing == null -> this.textInput.error = "not a integer"
-                bearing < 0 -> this.textInput.error = "less than 0"
-                bearing > 360  -> this.textInput.error = "greater than 360"
+        override fun createFragment(position: Int): Fragment {
+            return when(position) {
+                0 -> StartPageFragment()
+                1 -> SummaryPageFragment()
+                else -> SummaryPageFragment()
             }
         }
-
-        override fun afterTextChanged(p0: Editable?) {
-        }
-
     }
 }
+

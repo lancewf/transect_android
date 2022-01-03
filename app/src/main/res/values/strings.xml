@@ -4,5 +4,5 @@
     <string name="detailed_instructions">Detailed Instructions</string>
     <string name="summary_stats">Summary Stats</string>
     <string name="start_new_transect">Start New Transect</string>
-    <string name="bearing">Bearing:</string>
+    <string name="bearing">Bearing</string>
 </resources>

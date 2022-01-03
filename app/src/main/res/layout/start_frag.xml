@@ -7,62 +7,106 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/start_new_transect_group"
-        android:layout_width="336dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="20dp"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/icon_vessel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_baseline_directions_boat_24"
+            app:layout_constraintBottom_toBottomOf="@+id/vessel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/vessel" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/vessel"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="200dp"
+            android:layout_marginStart="16dp"
             android:layout_height="wrap_content"
             android:hint="Vessel"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" >
+            app:layout_constraintStart_toEndOf="@+id/icon_vessel"
+            app:layout_constraintTop_toTopOf="parent">
 
             <AutoCompleteTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none"
-                />
+                android:inputType="none" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/icon_observer1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_baseline_person_24"
+            app:layout_constraintBottom_toBottomOf="@+id/observer1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/observer1" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/observer1"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:hint="Observer1"
             android:layout_marginTop="8dp"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp"
+            android:hint="Observer1"
+            app:layout_constraintStart_toEndOf="@+id/icon_observer1"
             app:layout_constraintTop_toBottomOf="@+id/vessel">
 
             <AutoCompleteTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none"
-                />
+                android:inputType="none" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/icon_observer2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_baseline_person_outline_24"
+            app:layout_constraintBottom_toBottomOf="@+id/observer2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/observer2" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/observer2"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:hint="Observer2"
             android:layout_marginTop="8dp"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp"
+            android:hint="Observer2"
+            app:layout_constraintStart_toEndOf="@+id/icon_observer1"
             app:layout_constraintTop_toBottomOf="@+id/observer1">
 
             <AutoCompleteTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none"
-                />
+                android:inputType="none" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/icon_bearing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_baseline_explore_24"
+            app:layout_constraintBottom_toBottomOf="@+id/bearing"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/bearing" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/bearing"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -70,9 +114,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
+            android:layout_marginStart="16dp"
             android:hint="@string/bearing"
             app:layout_constraintBottom_toTopOf="@+id/start_new_transect"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/icon_bearing"
             app:layout_constraintTop_toBottomOf="@+id/observer2">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -90,9 +135,9 @@
             android:layout_height="55dp"
             android:layout_marginTop="10dp"
             android:text="@string/start_new_transect"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

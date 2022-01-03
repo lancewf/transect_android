@@ -5,4 +5,11 @@
     <string name="summary_stats">Summary Stats</string>
     <string name="start_new_transect">Start New Transect</string>
     <string name="bearing">Bearing</string>
+    <string name="instructions_title">Hui Kilo Kohola transect datalogger</string>
+    <string name="criteria1">1. Trip not interrupted (e.g. vessel stopped for viewing a whale or other reason more than a few minutes). Note: if interrupted for more than a few minutes, the transect can be stopped and a new one started.</string>
+    <string name="criteria2"><![CDATA[2. Beaufort sea state of 5 or less (< 21 kts)]]></string>
+    <string name="criteria3">3. Visibility 5 miles or greater</string>
+    <string name="criteria4">4. Glare on water of less than 50% (90 of 180 degrees arc being viewed)</string>
+    <string name="criteria5">5. Use of an observer(s) with required training</string>
+    <string name="criteria_overview">If these conditions are met and able to proceed, please log-in your vessel and observer(s) and select the \'Start\' tab</string>
 </resources>

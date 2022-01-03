@@ -51,6 +51,7 @@ class MainActivity : AppCompatActivity() {
             return when(position) {
                 0 -> StartPageFragment()
                 1 -> SummaryPageFragment()
+                2 -> InstructionsPageFragment()
                 else -> SummaryPageFragment()
             }
         }

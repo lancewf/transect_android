@@ -11,6 +11,7 @@
         <entry key="app/src/main/res/layout/start.xml" value="0.33229166666666665" />
         <entry key="app/src/main/res/layout/start_frag.xml" value="0.33541666666666664" />
         <entry key="app/src/main/res/layout/summary_frag.xml" value="0.22592592592592592" />
+        <entry key="app/src/main/res/layout/vessel_list_item.xml" value="0.5609375" />
       </map>
     </option>
   </component>

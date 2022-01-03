@@ -7,6 +7,9 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
+import com.finfrock.transect.adapter.VesselSummaryItemAdapter
+import com.finfrock.transect.data.DataSource
 import com.google.android.material.textfield.TextInputLayout
 
 class SummaryPageFragment : Fragment() {
@@ -19,9 +22,12 @@ class SummaryPageFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val vesselLayout: TextInputLayout = requireView().findViewById(R.id.vessel)
-        val vesselNames = listOf("Aloha Kai", "CaneFire II", "Kai Kanani", "Kohola", "Ohua", "Trilogy V")
-        val vesselAdapter = ArrayAdapter(requireView().context, R.layout.list_item, vesselNames)
-        (vesselLayout.editText as? AutoCompleteTextView)?.setAdapter(vesselAdapter)
+
+        val myDataset = DataSource().loadVesselSummaries()
+
+        val recyclerView = requireView().findViewById<RecyclerView>(R.id.vessel_view)
+
+        recyclerView.adapter = VesselSummaryItemAdapter(requireView().context, myDataset)
+        recyclerView.setHasFixedSize(true)
     }
 }

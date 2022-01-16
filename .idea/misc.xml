@@ -8,9 +8,11 @@
         <entry key="app/src/main/res/layout/list_item.xml" value="0.18840579710144928" />
         <entry key="app/src/main/res/layout/main_activity.xml" value="0.33" />
         <entry key="app/src/main/res/layout/main_fragment.xml" value="0.5458333333333333" />
+        <entry key="app/src/main/res/layout/running_transect_activity.xml" value="0.33" />
         <entry key="app/src/main/res/layout/start.xml" value="0.33229166666666665" />
         <entry key="app/src/main/res/layout/start_frag.xml" value="0.33541666666666664" />
-        <entry key="app/src/main/res/layout/summary_frag.xml" value="0.22592592592592592" />
+        <entry key="app/src/main/res/layout/summary_frag.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/toggle_button_group_table.xml" value="0.2725430597771023" />
         <entry key="app/src/main/res/layout/vessel_list_item.xml" value="0.5609375" />
       </map>
     </option>

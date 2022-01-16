@@ -1,5 +1,6 @@
 package com.finfrock.transect
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
@@ -41,6 +43,13 @@ class StartPageFragment : Fragment() {
 
         val observer2Layout: TextInputLayout = requireView().findViewById(R.id.observer2)
         (observer2Layout.editText as? AutoCompleteTextView)?.setAdapter(observerAdapter)
+
+        val startTransectButton: Button = requireView().findViewById(R.id.start_new_transect)
+        startTransectButton.setOnClickListener {
+            val intent = Intent(view.context, RunningTransectActivity::class.java)
+            intent.putExtra(RunningTransectActivity.VESSEL_ID, "")
+            view.context.startActivity(intent)
+        }
 
     }
 

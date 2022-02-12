@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/sighting_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/topInfoGroup" >
+
+        <ImageView
+            android:id="@+id/icon_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_baseline_calculate_24"
+            app:layout_constraintBottom_toBottomOf="@+id/countLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/countLabel" />
+        <TextView
+            android:id="@+id/countLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Count:"
+            android:layout_marginStart="5dp"
+            app:layout_constraintStart_toEndOf="@+id/icon_count"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <com.finfrock.transect.ToggleButtonGroupTableLayout
+            android:id="@+id/count_options"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/countLabel">
+            <TableRow>
+                <RadioButton
+                    android:id="@+id/option_one_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="One" />
+
+                <RadioButton
+                    android:id="@+id/option_two_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Two" />
+
+                <RadioButton
+                    android:id="@+id/option_three_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Three" />
+
+                <RadioButton
+                    android:id="@+id/option_four_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Four" />
+            </TableRow>
+            <TableRow>
+                <RadioButton
+                    android:id="@+id/option_five_seven_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="5-7" />
+                <RadioButton
+                    android:id="@+id/option_eight_ten_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="8-10" />
+                <RadioButton
+                    android:id="@+id/option_eleven_thirteen_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="11-13" />
+                <RadioButton
+                    android:id="@+id/option_greater_thirteen_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=">13" />
+            </TableRow>
+        </com.finfrock.transect.ToggleButtonGroupTableLayout>
+
+        <ImageView
+            android:id="@+id/icon_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_baseline_straighten_24"
+            app:layout_constraintBottom_toBottomOf="@+id/distance_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/distance_label" />
+        <TextView
+            android:id="@+id/distance_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Distance:"
+            android:layout_marginStart="5dp"
+            app:layout_constraintStart_toEndOf="@+id/icon_distance"
+            app:layout_constraintTop_toBottomOf="@+id/count_options" />
+
+        <com.finfrock.transect.ToggleButtonGroupTableLayout
+            android:id="@+id/distance_options"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/distance_label">
+
+            <TableRow>
+                <RadioButton
+                    android:id="@+id/option_with_50m"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="w/i 50M" />
+
+                <RadioButton
+                    android:id="@+id/option_100m"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="100 M" />
+
+                <RadioButton
+                    android:id="@+id/option_200m"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="200 M" />
+            </TableRow>
+            <TableRow>
+                <RadioButton
+                    android:id="@+id/option_300m"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="300 M" />
+
+                <RadioButton
+                    android:id="@+id/option_quarter_mile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=".25 mile" />
+                <RadioButton
+                    android:id="@+id/option_half_mile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=".5 mile" />
+            </TableRow>
+            <TableRow>
+                <RadioButton
+                    android:id="@+id/option_three_forth_mile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=".75 mile" />
+                <RadioButton
+                    android:id="@+id/option_one_mile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1 mile" />
+                <RadioButton
+                    android:id="@+id/option_greater_mile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="> 1 mile" />
+            </TableRow>
+        </com.finfrock.transect.ToggleButtonGroupTableLayout>
+        <ImageView
+            android:id="@+id/icon_bearing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_baseline_explore_24"
+            app:layout_constraintBottom_toBottomOf="@+id/bearing_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/bearing_label" />
+        <TextView
+            android:id="@+id/bearing_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bearing (Clock):"
+            android:layout_marginStart="5dp"
+            app:layout_constraintStart_toEndOf="@+id/icon_bearing"
+            app:layout_constraintTop_toBottomOf="@+id/distance_options" />
+
+        <com.finfrock.transect.ToggleButtonGroupTableLayout
+            android:id="@+id/bearing_options"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/bearing_label">
+
+            <TableRow>
+                <RadioButton
+                    android:id="@+id/option_nine"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="9" />
+
+                <RadioButton
+                    android:id="@+id/option_10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="10" />
+
+                <RadioButton
+                    android:id="@+id/option_11"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="11" />
+                <RadioButton
+                    android:id="@+id/option_12"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="12" />
+            </TableRow>
+            <TableRow>
+                <RadioButton
+                    android:id="@+id/option_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1" />
+                <RadioButton
+                    android:id="@+id/option_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2" />
+                <RadioButton
+                    android:id="@+id/option_3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3" />
+            </TableRow>
+        </com.finfrock.transect.ToggleButtonGroupTableLayout>
+
+        <ImageView
+            android:id="@+id/icon_group_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_baseline_groups_24"
+            app:layout_constraintBottom_toBottomOf="@+id/group_type_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/group_type_label" />
+        <TextView
+            android:id="@+id/group_type_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Group Type:"
+            android:layout_marginStart="5dp"
+            app:layout_constraintStart_toEndOf="@+id/icon_group_type"
+            app:layout_constraintTop_toBottomOf="@+id/bearing_options" />
+        <RadioGroup
+            android:id="@+id/group_type_options"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/group_type_label">
+
+            <RadioButton
+                android:id="@+id/option_mc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MC" />
+            <RadioButton
+                android:id="@+id/option_mce"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MCE" />
+            <RadioButton
+                android:id="@+id/option_cg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CG" />
+            <RadioButton
+                android:id="@+id/option_unknown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Unknown" />
+        </RadioGroup>
+
+
+        <ImageView
+            android:id="@+id/icon_beaufort"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_baseline_water_24"
+            app:layout_constraintBottom_toBottomOf="@+id/beaufort"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/beaufort" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/beaufort"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:hint="Beaufort"
+            app:layout_constraintStart_toEndOf="@+id/icon_beaufort"
+            app:layout_constraintTop_toBottomOf="@+id/group_type_options">
+
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <ImageView
+            android:id="@+id/icon_weather"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_baseline_air_24"
+            app:layout_constraintBottom_toBottomOf="@+id/weather"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/weather" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/weather"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:hint="Weather"
+            app:layout_constraintStart_toEndOf="@+id/icon_weather"
+            app:layout_constraintTop_toBottomOf="@+id/beaufort">
+
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

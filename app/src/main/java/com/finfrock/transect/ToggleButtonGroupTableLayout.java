@@ -3,12 +3,14 @@ package com.finfrock.transect;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
+
+import androidx.annotation.IdRes;
 
 /**
  *
@@ -17,13 +19,13 @@ public class ToggleButtonGroupTableLayout extends TableLayout  implements OnClic
 
     private static final String TAG = "ToggleButtonGroupTableLayout";
     private RadioButton activeRadioButton;
+    private RadioGroup.OnCheckedChangeListener mOnCheckedChangeListener;
 
     /**
      * @param context
      */
     public ToggleButtonGroupTableLayout(Context context) {
         super(context);
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -32,7 +34,6 @@ public class ToggleButtonGroupTableLayout extends TableLayout  implements OnClic
      */
     public ToggleButtonGroupTableLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        // TODO Auto-generated constructor stub
     }
 
     @Override
@@ -42,6 +43,9 @@ public class ToggleButtonGroupTableLayout extends TableLayout  implements OnClic
             activeRadioButton.setChecked(false);
         }
         rb.setChecked(true);
+        if (mOnCheckedChangeListener != null) {
+            mOnCheckedChangeListener.onCheckedChanged(null, rb.getId());
+        }
         activeRadioButton = rb;
     }
 
@@ -53,6 +57,37 @@ public class ToggleButtonGroupTableLayout extends TableLayout  implements OnClic
                         android.view.ViewGroup.LayoutParams params) {
         super.addView(child, index, params);
         setChildrenOnClickListener((TableRow)child);
+    }
+
+    public void clearCheck() {
+        if ( activeRadioButton != null ) {
+            activeRadioButton.setChecked(false);
+            activeRadioButton = null;
+        }
+    }
+
+    public void setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener listener) {
+        mOnCheckedChangeListener = listener;
+    }
+
+    public void check(@IdRes int id) {
+        if (activeRadioButton != null && activeRadioButton.getId() == id) {
+            activeRadioButton.setChecked(true);
+            return;
+        }
+        for (int i = 0; i < getChildCount(); i++){
+            TableRow row = (TableRow) this.getChildAt(i);
+            for (int j = 0; j < row.getChildCount(); j++){
+                RadioButton rb = (RadioButton) row.getChildAt(j);
+                if (rb.getId() == id) {
+                    if ( activeRadioButton != null ) {
+                        activeRadioButton.setChecked(false);
+                    }
+                    rb.setChecked(true);
+                    activeRadioButton = rb;
+                }
+            }
+        }
     }
 
 
@@ -74,13 +109,5 @@ public class ToggleButtonGroupTableLayout extends TableLayout  implements OnClic
                 v.setOnClickListener(this);
             }
         }
-    }
-
-    public int getCheckedRadioButtonId() {
-        if ( activeRadioButton != null ) {
-            return activeRadioButton.getId();
-        }
-
-        return -1;
     }
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_stop"
+        android:icon="@drawable/ic_baseline_stop_24"
+        app:showAsAction="never"
+        android:title="Stop">
+    </item>
+</menu>

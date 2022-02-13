@@ -43,7 +43,7 @@ class StartPageFragment : Fragment() {
         bearingTextField.addTextChangedListener(BearingTextWatcher(bearingTextField))
 
         val vesselLayout: TextInputLayout = requireView().findViewById(R.id.vessel)
-        val vessels = DataSource().loadVesselSummaries()
+        val vessels = DataSource.loadVesselSummaries()
         val vesselAdapter = ArrayAdapter(requireView().context, R.layout.list_item, vessels)
         (vesselLayout.editText as? AutoCompleteTextView)?.setAdapter(vesselAdapter)
         (vesselLayout.editText as? AutoCompleteTextView)?.setOnItemClickListener { parent, view, position, id ->
@@ -52,7 +52,7 @@ class StartPageFragment : Fragment() {
         }
 
         val observer1Layout: TextInputLayout = requireView().findViewById(R.id.observer1)
-        val observers = DataSource().loadObservers()
+        val observers = DataSource.loadObservers()
         val observerAdapter = ArrayAdapter(requireView().context, R.layout.list_item, observers)
         (observer1Layout.editText as? AutoCompleteTextView)?.setAdapter(observerAdapter)
         (observer1Layout.editText as? AutoCompleteTextView)?.setOnItemClickListener { parent, view, position, id ->

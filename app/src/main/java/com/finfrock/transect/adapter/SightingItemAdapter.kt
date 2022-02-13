@@ -1,23 +1,33 @@
 package com.finfrock.transect.adapter
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.app.ActivityCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.RecyclerView
+import com.finfrock.transect.LocationProxy
+import com.finfrock.transect.LocationProxyLike
 import com.finfrock.transect.R
 import com.finfrock.transect.ToggleButtonGroupTableLayout
 import com.finfrock.transect.model.GroupType
+import com.finfrock.transect.model.LatLon
 import com.finfrock.transect.model.Sighting
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.textfield.TextInputLayout
 import java.util.*
 
-class SightingItemAdapter(private val context: Context, private val dataset: MutableList<Sighting>):
-    RecyclerView.Adapter<SightingItemAdapter.ItemViewHolder>() {
+class SightingItemAdapter(private val dataset: MutableList<Sighting>,
+                          private val locationProxy: LocationProxyLike
+): RecyclerView.Adapter<SightingItemAdapter.ItemViewHolder>() {
 
-    class ItemViewHolder(private val view: View): RecyclerView.ViewHolder(view) {
+    class ItemViewHolder(view: View): RecyclerView.ViewHolder(view) {
         companion object {
             val BEAUFORT_OPTIONS = listOf(
                 "0 (calm)",
@@ -56,8 +66,13 @@ class SightingItemAdapter(private val context: Context, private val dataset: Mut
     }
 
     fun addNewSighting() {
-        dataset.add(Sighting(datetime = Date()))
-        notifyItemInserted(itemCount -1 )
+        locationProxy.getLocation().addOnSuccessListener {
+            dataset.add(Sighting(
+                datetime = Date(),
+                location = it
+            ))
+            notifyItemInserted(itemCount -1 )
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {

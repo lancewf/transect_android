@@ -23,7 +23,7 @@ class SummaryPageFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val myDataset = DataSource().loadVesselSummaries()
+        val myDataset = DataSource.loadVesselSummaries()
 
         val recyclerView = requireView().findViewById<RecyclerView>(R.id.vessel_view)
 

@@ -1,12 +1,12 @@
 package com.finfrock.transect.data
 
-import com.finfrock.transect.model.GroupType
-import com.finfrock.transect.model.Sighting
 import com.finfrock.transect.model.VesselSummary
 import com.finfrock.transect.model.Observer
-import java.util.Date
+import com.finfrock.transect.model.Transect
+import com.finfrock.transect.model.TransectState
 
-class DataSource {
+object DataSource {
+    private val transects = mutableListOf<TransectState>()
 
     fun loadVesselSummaries(): List<VesselSummary> {
         return listOf(
@@ -25,13 +25,16 @@ class DataSource {
         )
     }
 
-    fun loadSightings(): List<Sighting> {
-        return listOf(
-            Sighting(datetime = Date(), count = 3, distanceKm = 100.0, bearing = 0, groupType = GroupType.MC),
-            Sighting(datetime = Date(), count = 1, distanceKm = 300.0, bearing = 90, groupType = GroupType.MCE),
-                    Sighting(datetime = Date(), count = 5, distanceKm = 200.0, bearing = 90, groupType = GroupType.MC),
-                            Sighting(datetime = Date(), count = 2, distanceKm = 400.0, bearing = 90, groupType = GroupType.MC)
-        )
+    fun getTransectsWithVesselId(vesselId: Int): List<Transect> {
+        return transects.map{it.transect}.filter{it.vesselId == vesselId}
+    }
+
+    fun getAllTransects(): List<Transect> {
+        return transects.map{ it.transect }
+    }
+
+    fun addTransect(transect: Transect){
+        transects.add(TransectState(transect, true))
     }
 
     fun loadObservers(): List<Observer> {

@@ -1,16 +1,14 @@
 package com.finfrock.transect
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
-import android.provider.Settings
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -19,10 +17,7 @@ import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.LatLon
 import com.finfrock.transect.model.Sighting
 import com.finfrock.transect.model.Transect
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.appbar.MaterialToolbar
 import java.util.*
 
@@ -43,6 +38,18 @@ class RunningTransectActivity : AppCompatActivity() {
     private var observer2Id: Int? = null
     private var bearing: Int = -1
 
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { isGranted: Map<String, Boolean> ->
+            if (isGranted.all{d -> d.value}) {
+                initialize()
+            } else {
+                Toast.makeText(this,
+                    "Transect can not be created without location access", Toast.LENGTH_LONG).show()
+                finish()
+            }
+        }
 
     class PagerViewer(private val layoutManager: LinearLayoutManager,
                       private val textView: TextView, private val size: () -> Int) {
@@ -54,37 +61,34 @@ class RunningTransectActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.running_transect_activity)
+
+        vesselId = intent.extras?.getInt(VESSEL_ID) ?: -1
+        observer1Id = intent.extras?.getInt(OBSERVER1_ID) ?: -1
+        observer2Id = intent.extras?.getInt(OBSERVER2_ID)
+        bearing = intent.extras?.getInt(BEARING) ?: -1
+
+        checkPermissions()
+    }
+
+    private fun checkPermissions() {
+        when {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED -> {
+                initialize()
+            }
+            else -> {
+                requestPermissionLauncher.launch(arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION))
+            }
+        }
+    }
+
+    private fun initialize() {
 //        val locationProxy = MockLocationProxy()
         val locationProxy = LocationProxy(this, LocationServices.getFusedLocationProviderClient(this))
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            Toast.makeText(this, "Please turn on" + " your location...", Toast.LENGTH_LONG).show()
-            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            startActivity(intent)
-            finish()
-            return
-        }
-
-        val bundle = intent.getExtras()
-
-        vesselId = bundle?.getInt(VESSEL_ID) ?: -1
-        observer1Id = bundle?.getInt(OBSERVER1_ID) ?: -1
-        observer2Id = bundle?.getInt(OBSERVER2_ID)
-        bearing = bundle?.getInt(BEARING) ?: -1
-
         val bearingLabel = findViewById<TextView>(R.id.bearingLabel)
         bearingLabel.text = bearing.toString()
 
@@ -125,14 +129,6 @@ class RunningTransectActivity : AppCompatActivity() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {}
         })
 
-        sightingAdapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
-            override fun onItemRangeInserted(start: Int, count: Int) {
-                recyclerView.smoothScrollToPosition(start +1)
-                pagerViewer.updatePage(start +1)
-            }
-        })
-
-
         val deleteButton = findViewById<Button>(R.id.deleteButton)
         deleteButton.isEnabled = false
         deleteButton.setOnClickListener {
@@ -153,13 +149,20 @@ class RunningTransectActivity : AppCompatActivity() {
             }
         }
 
+        sightingAdapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(start: Int, count: Int) {
+                recyclerView.smoothScrollToPosition(start +1)
+                pagerViewer.updatePage(start +1)
+                if (mutableSightings.size > 0) {
+                    deleteButton.isEnabled = true
+                }
+            }
+        })
+
         val addButton = findViewById<Button>(R.id.addSightingButton)
         addButton.isEnabled = false
         addButton.setOnClickListener {
             sightingAdapter.addNewSighting()
-            if (mutableSightings.size > 0) {
-                deleteButton.isEnabled = true
-            }
         }
 
         val toolBar = findViewById<MaterialToolbar>(R.id.topAppBar)
@@ -176,18 +179,18 @@ class RunningTransectActivity : AppCompatActivity() {
         counter.start()
 
         toolBar.setOnMenuItemClickListener { menuItem ->
-           when (menuItem.itemId) {
-               R.id.action_stop -> {
-                   counter.stop()
-                   val transectStopDate = Date()
-                   locationProxy.getLocation().addOnSuccessListener { transectStopLatLon ->
-                       storeTransect(transectStopLatLon, transectStopDate)
-                       finish()
-                   }
-                  true
-               }
-               else -> false
-           }
+            when (menuItem.itemId) {
+                R.id.action_stop -> {
+                    counter.stop()
+                    val transectStopDate = Date()
+                    locationProxy.getLocation().addOnSuccessListener { transectStopLatLon ->
+                        storeTransect(transectStopLatLon, transectStopDate)
+                        finish()
+                    }
+                    true
+                }
+                else -> false
+            }
         }
 
         locationProxy.getLocation().addOnSuccessListener {

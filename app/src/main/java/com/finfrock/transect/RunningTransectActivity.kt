@@ -17,7 +17,6 @@ import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.LatLon
 import com.finfrock.transect.model.Sighting
 import com.finfrock.transect.model.Transect
-import com.google.android.gms.location.LocationServices
 import com.google.android.material.appbar.MaterialToolbar
 import java.util.*
 
@@ -51,8 +50,7 @@ class RunningTransectActivity : AppCompatActivity() {
             }
         }
 
-    class PagerViewer(private val layoutManager: LinearLayoutManager,
-                      private val textView: TextView, private val size: () -> Int) {
+    class PagerViewer(private val textView: TextView, private val size: () -> Int) {
         fun updatePage(index: Int) {
             textView.text = "${index + 1} of ${size()}"
         }
@@ -87,8 +85,8 @@ class RunningTransectActivity : AppCompatActivity() {
     }
 
     private fun initialize() {
-//        val locationProxy = MockLocationProxy()
-        val locationProxy = LocationProxy(this, LocationServices.getFusedLocationProviderClient(this))
+        val locationProxy = MockLocationProxy()
+//        val locationProxy = LocationProxy(this, LocationServices.getFusedLocationProviderClient(this))
         val bearingLabel = findViewById<TextView>(R.id.bearingLabel)
         bearingLabel.text = bearing.toString()
 
@@ -98,7 +96,7 @@ class RunningTransectActivity : AppCompatActivity() {
         val observer2Label = findViewById<TextView>(R.id.observerName2)
         observer2Label.text = getObserverName(observer2Id)
 
-        val vesselLabel = findViewById<TextView>(R.id.vesselName)
+        val vesselLabel = findViewById<TextView>(R.id.vesselSumName)
         vesselLabel.text = getVesselName(vesselId)
 
         val recyclerView = findViewById<RecyclerView>(R.id.sighting_view)
@@ -110,7 +108,7 @@ class RunningTransectActivity : AppCompatActivity() {
             adapter = sightingAdapter
         }
         val pagerTextView: TextView = findViewById(R.id.pager_view)
-        val pagerViewer = PagerViewer(sightingLayoutManager, pagerTextView) { -> mutableSightings.size }
+        val pagerViewer = PagerViewer(pagerTextView) { -> mutableSightings.size }
 
         PagerSnapHelper().attachToRecyclerView(recyclerView)
         // use the below Snap Helper to scroll more than one item at a time.

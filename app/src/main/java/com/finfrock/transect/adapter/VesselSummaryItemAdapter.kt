@@ -1,15 +1,20 @@
 package com.finfrock.transect.adapter
 
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.finfrock.transect.R
+import com.finfrock.transect.RunningTransectActivity
+import com.finfrock.transect.VesselSummaryActivity
 import com.finfrock.transect.model.VesselSummary
 
-class VesselSummaryItemAdapter( private val context: Context, private val dataset: List<VesselSummary>):
+class VesselSummaryItemAdapter( private val context: Context, private val vesselSummaries: List<VesselSummary>):
     RecyclerView.Adapter<VesselSummaryItemAdapter.ItemViewHolder>() {
 
     class ItemViewHolder(private val view: View): RecyclerView.ViewHolder(view) {
@@ -19,17 +24,29 @@ class VesselSummaryItemAdapter( private val context: Context, private val datase
         val animalPerKmTextView: TextView = view.findViewById(R.id.vessel_animals_per_km)
         val totalDurationTextView: TextView = view.findViewById(R.id.vessel_total_duration)
         val distanceTraveledTextView: TextView = view.findViewById(R.id.vessel_distance_traveled)
+        val container: ConstraintLayout = view.findViewById(R.id.vessel_summary_container)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         val adapterLayout =
             LayoutInflater.from(parent.context).inflate(R.layout.vessel_list_item, parent, false)
 
-        return ItemViewHolder(adapterLayout)
+        val holder = ItemViewHolder(adapterLayout)
+        holder.container.setOnClickListener {
+            val summary = vesselSummaries[holder.adapterPosition]
+
+            val intent = Intent(context, VesselSummaryActivity::class.java)
+
+            intent.putExtra(VesselSummaryActivity.VESSEL_ID, summary.id)
+
+            context.startActivity(intent)
+        }
+
+        return holder
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        val vessel = dataset[position]
+        val vessel = vesselSummaries[position]
 
         holder.nameTextView.text = vessel.name
         holder.numberTransectsTextView.text = "# Transects: ${vessel.numberOfTransects}"
@@ -39,6 +56,6 @@ class VesselSummaryItemAdapter( private val context: Context, private val datase
         holder.distanceTraveledTextView.text = "Distance Traveled (km): ${vessel.totalDistanceTraveledKm}"
     }
 
-    override fun getItemCount() = dataset.size
+    override fun getItemCount() = vesselSummaries.size
 
 }

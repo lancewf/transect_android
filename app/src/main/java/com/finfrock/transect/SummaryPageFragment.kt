@@ -1,5 +1,7 @@
 package com.finfrock.transect
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -26,8 +28,9 @@ class SummaryPageFragment : Fragment() {
         val myDataset = DataSource.loadVesselSummaries()
 
         val recyclerView = requireView().findViewById<RecyclerView>(R.id.vessel_view)
+        val itemAdapter = VesselSummaryItemAdapter(requireView().context, myDataset)
 
-        recyclerView.adapter = VesselSummaryItemAdapter(requireView().context, myDataset)
+        recyclerView.adapter = itemAdapter
         recyclerView.setHasFixedSize(true)
     }
 }

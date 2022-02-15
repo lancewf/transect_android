@@ -24,6 +24,10 @@
             android:name=".RunningTransectActivity"
             android:exported="true">
         </activity>
+        <activity
+            android:name=".VesselSummaryActivity"
+            android:exported="true">
+        </activity>
     </application>
 
 </manifest>

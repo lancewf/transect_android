@@ -89,12 +89,12 @@
                     android:layout_height="wrap_content"
                     android:importantForAccessibility="no"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintBottom_toBottomOf="@+id/vesselName"
-                    app:layout_constraintTop_toTopOf="@+id/vesselName"
+                    app:layout_constraintBottom_toBottomOf="@+id/vesselSumName"
+                    app:layout_constraintTop_toTopOf="@+id/vesselSumName"
                     app:srcCompat="@drawable/ic_baseline_directions_boat_24" />
 
                 <TextView
-                    android:id="@+id/vesselName"
+                    android:id="@+id/vesselSumName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toEndOf="@id/icon_vessel"
@@ -108,7 +108,7 @@
                     android:layout_marginStart="200dp"
                     android:importantForAccessibility="no"
                     app:layout_constraintBottom_toBottomOf="@+id/observerName1"
-                    app:layout_constraintStart_toEndOf="@+id/vesselName"
+                    app:layout_constraintStart_toEndOf="@+id/vesselSumName"
                     app:layout_constraintTop_toTopOf="@+id/observerName1"
                     app:srcCompat="@drawable/ic_baseline_person_24" />
 
@@ -155,7 +155,7 @@
                     android:layout_marginTop="8dp"
                     tools:text="90"
                     app:layout_constraintStart_toEndOf="@id/icon_bearing"
-                    app:layout_constraintTop_toBottomOf="@+id/vesselName" />
+                    app:layout_constraintTop_toBottomOf="@+id/vesselSumName" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

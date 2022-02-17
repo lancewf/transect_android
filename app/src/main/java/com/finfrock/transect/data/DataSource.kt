@@ -1,9 +1,8 @@
 package com.finfrock.transect.data
 
-import com.finfrock.transect.model.VesselSummary
+import com.finfrock.transect.model.*
 import com.finfrock.transect.model.Observer
-import com.finfrock.transect.model.Transect
-import com.finfrock.transect.model.TransectState
+import java.util.*
 
 object DataSource {
     private val transects = mutableListOf<TransectState>()
@@ -26,7 +25,19 @@ object DataSource {
     }
 
     fun getTransectsWithVesselId(vesselId: Int): List<Transect> {
-        return transects.map{it.transect}.filter{it.vesselId == vesselId}
+        return listOf(
+            Transect(id = UUID.randomUUID(), startDate = Date(), endDate = Date(),
+                startLatLon = LatLon(0.0, 0.0), endLatLon = LatLon(0.0, 0.0),
+                sightings = emptyList(), vesselId = vesselId, bearing = 90,
+                observer1Id = 4, observer2Id = 5
+            ),
+            Transect(id = UUID.randomUUID(), startDate = Date(), endDate = Date(),
+                startLatLon = LatLon(0.0, 0.0), endLatLon = LatLon(0.0, 0.0),
+                sightings = emptyList(), vesselId = vesselId, bearing = 77,
+                observer1Id = 1, observer2Id = 2
+            )
+        )
+//        transects.map{it.transect}.filter{it.vesselId == vesselId}
     }
 
     fun getAllTransects(): List<Transect> {

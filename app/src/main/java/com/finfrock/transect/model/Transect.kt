@@ -3,6 +3,7 @@ package com.finfrock.transect.model
 import java.util.*
 
 data class Transect(
+    val id: UUID,
     val startDate: Date,
     val endDate: Date,
     val startLatLon: LatLon,

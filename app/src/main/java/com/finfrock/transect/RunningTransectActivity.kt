@@ -171,7 +171,7 @@ class RunningTransectActivity : AppCompatActivity() {
                 val hours = totalSeconds / 3600
                 val minutes = (totalSeconds % 3600) / 60
                 val seconds = totalSeconds % 60
-                toolBar.setTitle(String.format("%02d:%02d:%02d", hours, minutes, seconds))
+                toolBar.title = String.format("%02d:%02d:%02d", hours, minutes, seconds)
             }
         }
         counter.start()
@@ -199,7 +199,8 @@ class RunningTransectActivity : AppCompatActivity() {
 
     private fun storeTransect(transectStopLatLon: LatLon, transectStopDate: Date) {
         DataSource.addTransect(Transect(
-          startDate = transectStart,
+            id = UUID.randomUUID(),
+            startDate = transectStart,
             endDate = transectStopDate,
             startLatLon = this.startLocation,
             endLatLon = transectStopLatLon,

@@ -4,12 +4,15 @@ import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.RecyclerView
+import com.finfrock.transect.adapter.TransectItemAdapter
+import com.finfrock.transect.adapter.VesselSummaryItemAdapter
 import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.VesselSummary
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
 
-class VesselSummaryActivity  : AppCompatActivity() {
+class VesselSummaryActivity : AppCompatActivity() {
     companion object {
         const val VESSEL_ID = "vesselId"
     }
@@ -28,15 +31,20 @@ class VesselSummaryActivity  : AppCompatActivity() {
             finish()
         }
         val vesselSummary = getVesselSummary(vesselId)
-        val nameTextView = findViewById<TextView>(R.id.vesselSumName)
 
+        val toolBar = findViewById<MaterialToolbar>(R.id.topAppBar)
         if (vesselSummary != null) {
-            nameTextView.text = vesselSummary.name
-        } else {
-            nameTextView.text = "None"
+            toolBar.title = vesselSummary.name
         }
-    }
 
+        val recyclerView = findViewById<RecyclerView>(R.id.single_vessel_view)
+
+        val transects = DataSource.getTransectsWithVesselId(vesselId)
+
+        recyclerView.adapter = TransectItemAdapter(this, transects)
+        recyclerView.setHasFixedSize(true)
+
+    }
 
     private fun getVesselSummary(vesselId: Int): VesselSummary? {
         return DataSource.loadVesselSummaries().find{ it.id == vesselId}

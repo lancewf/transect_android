@@ -28,9 +28,8 @@ class SummaryPageFragment : Fragment() {
         val myDataset = DataSource.loadVesselSummaries()
 
         val recyclerView = requireView().findViewById<RecyclerView>(R.id.vessel_view)
-        val itemAdapter = VesselSummaryItemAdapter(requireView().context, myDataset)
 
-        recyclerView.adapter = itemAdapter
+        recyclerView.adapter = VesselSummaryItemAdapter(requireView().context, myDataset)
         recyclerView.setHasFixedSize(true)
     }
 }

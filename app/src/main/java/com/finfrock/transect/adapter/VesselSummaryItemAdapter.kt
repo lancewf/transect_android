@@ -14,7 +14,7 @@ import com.finfrock.transect.RunningTransectActivity
 import com.finfrock.transect.VesselSummaryActivity
 import com.finfrock.transect.model.VesselSummary
 
-class VesselSummaryItemAdapter( private val context: Context, private val vesselSummaries: List<VesselSummary>):
+class VesselSummaryItemAdapter(private val context: Context, private val vesselSummaries: List<VesselSummary>):
     RecyclerView.Adapter<VesselSummaryItemAdapter.ItemViewHolder>() {
 
     class ItemViewHolder(private val view: View): RecyclerView.ViewHolder(view) {

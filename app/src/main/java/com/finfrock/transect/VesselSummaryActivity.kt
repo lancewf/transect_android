@@ -32,9 +32,8 @@ class VesselSummaryActivity : AppCompatActivity() {
         }
         val vesselSummary = getVesselSummary(vesselId)
 
-        val toolBar = findViewById<MaterialToolbar>(R.id.topAppBar)
         if (vesselSummary != null) {
-            toolBar.title = vesselSummary.name
+            actionBar.title = vesselSummary.name
         }
 
         val recyclerView = findViewById<RecyclerView>(R.id.single_vessel_view)

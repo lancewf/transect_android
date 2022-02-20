@@ -34,7 +34,7 @@ class TransectItemAdapter(private val context: Context, private val transects: L
 
             val intent = Intent(context, TransectSummaryActivity::class.java)
 
-            intent.putExtra(TransectSummaryActivity.TRANSECT_ID, transect.id)
+            intent.putExtra(TransectSummaryActivity.TRANSECT_ID, transect.id.toString())
 
             context.startActivity(intent)
         }

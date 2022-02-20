@@ -14,9 +14,9 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.finfrock.transect.adapter.SightingItemAdapter
 import com.finfrock.transect.data.DataSource
-import com.finfrock.transect.model.LatLon
 import com.finfrock.transect.model.Sighting
 import com.finfrock.transect.model.Transect
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.appbar.MaterialToolbar
 import java.util.*
 
@@ -31,7 +31,7 @@ class RunningTransectActivity : AppCompatActivity() {
 
     private val mutableSightings = mutableListOf<Sighting>()
     private val transectStart = Date()
-    private lateinit var startLocation: LatLon
+    private lateinit var startLocation: LatLng
     private var vesselId: Int = -1
     private var observer1Id: Int = -1
     private var observer2Id: Int? = null
@@ -197,9 +197,9 @@ class RunningTransectActivity : AppCompatActivity() {
         }
     }
 
-    private fun storeTransect(transectStopLatLon: LatLon, transectStopDate: Date) {
+    private fun storeTransect(transectStopLatLon: LatLng, transectStopDate: Date) {
         DataSource.addTransect(Transect(
-            id = UUID.randomUUID(),
+            id = UUID.randomUUID().toString(),
             startDate = transectStart,
             endDate = transectStopDate,
             startLatLon = this.startLocation,

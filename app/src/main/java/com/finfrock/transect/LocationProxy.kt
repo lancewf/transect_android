@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import com.finfrock.transect.model.LatLon
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -18,18 +18,18 @@ class LocationProxy(private val context: Context,
                     private val fusedLocationClient: FusedLocationProviderClient): LocationProxyLike {
 
     @SuppressLint("MissingPermission")
-    override fun getLocation(): Task<LatLon> {
+    override fun getLocation(): Task<LatLng> {
         val cts = CancellationTokenSource()
-        val taskCompletionSource = TaskCompletionSource<LatLon>()
+        val taskCompletionSource = TaskCompletionSource<LatLng>()
         if (hasPermissions()) {
             fusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, cts.token).addOnSuccessListener {
-                taskCompletionSource.setResult(LatLon(it.latitude, it.longitude))
+                taskCompletionSource.setResult(LatLng(it.latitude, it.longitude))
             }.addOnFailureListener{
                 Toast.makeText(context, "Failure getting location", Toast.LENGTH_LONG)
                 taskCompletionSource.setException(it)
             }
         } else {
-            taskCompletionSource.setResult(LatLon(0.0, 0.0))
+            taskCompletionSource.setResult(LatLng(0.0, 0.0))
         }
 
         return taskCompletionSource.task

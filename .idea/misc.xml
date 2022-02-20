@@ -6,6 +6,9 @@
         <entry key="../../../../layout/custom_preview.xml" value="0.33229166666666665" />
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.5765625" />
         <entry key="app/src/main/res/drawable/ic_baseline_add_24.xml" value="0.5388888888888889" />
+        <entry key="app/src/main/res/drawable/ic_baseline_groups_24.xml" value="0.2655" />
+        <entry key="app/src/main/res/drawable/ic_bigfish.xml" value="0.2655" />
+        <entry key="app/src/main/res/drawable/ic_bigfish2.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/ic_foreground.xml" value="0.5765625" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.5765625" />
         <entry key="app/src/main/res/drawable/ic_weather_background.xml" value="0.5765625" />

@@ -1,11 +1,19 @@
 package com.finfrock.transect.data
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.finfrock.transect.model.*
 import com.finfrock.transect.model.Observer
+import com.google.android.gms.maps.model.LatLng
+import java.time.LocalDateTime
 import java.util.*
 
 object DataSource {
     private val transects = mutableListOf<TransectState>()
+
+    init {
+        loadFakeData()
+    }
 
     fun loadVesselSummaries(): List<VesselSummary> {
         return listOf(
@@ -25,19 +33,11 @@ object DataSource {
     }
 
     fun getTransectsWithVesselId(vesselId: Int): List<Transect> {
-        return listOf(
-            Transect(id = UUID.randomUUID(), startDate = Date(), endDate = Date(),
-                startLatLon = LatLon(0.0, 0.0), endLatLon = LatLon(0.0, 0.0),
-                sightings = emptyList(), vesselId = vesselId, bearing = 90,
-                observer1Id = 4, observer2Id = 5
-            ),
-            Transect(id = UUID.randomUUID(), startDate = Date(), endDate = Date(),
-                startLatLon = LatLon(0.0, 0.0), endLatLon = LatLon(0.0, 0.0),
-                sightings = emptyList(), vesselId = vesselId, bearing = 77,
-                observer1Id = 1, observer2Id = 2
-            )
-        )
-//        transects.map{it.transect}.filter{it.vesselId == vesselId}
+        return transects.map{it.transect}.filter{it.vesselId == vesselId}
+    }
+
+    fun getTransectFromId(transectId: String): Transect?  {
+        return transects.map{it.transect}.find{it.id == transectId}
     }
 
     fun getAllTransects(): List<Transect> {
@@ -55,6 +55,47 @@ object DataSource {
             Observer(id = 3, name = "Jason Moore"),
             Observer(id = 4, name = "Lance"),
             Observer(id = 5, name = "Rachel Finn"),
+        )
+    }
+
+    private fun loadFakeData() {
+        val now = Date()
+        transects.add(
+            TransectState(Transect(
+                id = UUID.randomUUID().toString(),
+                startDate = Date(),
+                endDate = Date(),
+                startLatLon = LatLng(20.780584, -156.504399),
+                endLatLon = LatLng(20.572826, -156.652441),
+                sightings = listOf(
+                    Sighting(
+                        datetime = Date(now.time + 1000*60*60*1),
+                        location = LatLng(20.730948, -156.529627),
+                        count = 1
+                    ),
+                    Sighting(
+                        datetime = Date(now.time + 1000*60*70),
+                        location = LatLng(20.680398, -156.581261),
+                        count = 2
+                    ),
+                    Sighting(
+                        datetime = Date(now.time + 1000*60*90),
+                        location = LatLng(20.630308, -156.609860),
+                        count = 3
+                    )
+                ),
+                vesselId = 1, bearing = 90,
+                observer1Id = 4, observer2Id = 5
+            ), true )
+        )
+
+        transects.add(
+            TransectState(Transect(id = UUID.randomUUID().toString(), startDate = Date(), endDate = Date(),
+                startLatLon = LatLng(0.0, 0.0), endLatLon = LatLng(0.0, 0.0),
+                sightings = emptyList(),
+                vesselId = 1, bearing = 77,
+                observer1Id = 1, observer2Id = 2
+            ), true )
         )
     }
 }

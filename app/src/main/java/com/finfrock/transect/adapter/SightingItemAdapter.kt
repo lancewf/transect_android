@@ -1,8 +1,5 @@
 package com.finfrock.transect.adapter
 
-import android.Manifest
-import android.content.Context
-import android.content.pm.PackageManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,9 +11,8 @@ import com.finfrock.transect.R
 import com.finfrock.transect.ToggleButtonGroupTableLayout
 import com.finfrock.transect.model.GroupType
 import com.finfrock.transect.model.Sighting
-import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.textfield.TextInputLayout
-import java.util.*
+import java.time.LocalDateTime
 
 class SightingItemAdapter(private val dataset: MutableList<Sighting>,
                           private val locationProxy: LocationProxyLike
@@ -63,7 +59,7 @@ class SightingItemAdapter(private val dataset: MutableList<Sighting>,
     fun addNewSighting() {
         locationProxy.getLocation().addOnSuccessListener {
             dataset.add(Sighting(
-                datetime = Date(),
+                datetime = LocalDateTime.now(),
                 location = it
             ))
             notifyItemInserted(itemCount -1 )
@@ -166,7 +162,7 @@ class SightingItemAdapter(private val dataset: MutableList<Sighting>,
 
         holder.beaufort.editText?.doAfterTextChanged {
             val sighting = dataset[holder.adapterPosition]
-            val index = ItemViewHolder.BEAUFORT_OPTIONS.indexOf(it.toString());
+            val index = ItemViewHolder.BEAUFORT_OPTIONS.indexOf(it.toString())
             if ( index >= 0 ) {
                 sighting.beaufort = index
             } else {
@@ -176,7 +172,7 @@ class SightingItemAdapter(private val dataset: MutableList<Sighting>,
 
         holder.weather.editText?.doAfterTextChanged {
             val sighting = dataset[holder.adapterPosition]
-            val index = ItemViewHolder.WEATHER_OPTIONS.indexOf(it.toString());
+            val index = ItemViewHolder.WEATHER_OPTIONS.indexOf(it.toString())
             if ( index >= 0 ) {
                 sighting.weather = index
             } else {

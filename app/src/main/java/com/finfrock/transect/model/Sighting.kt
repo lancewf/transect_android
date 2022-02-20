@@ -1,10 +1,10 @@
 package com.finfrock.transect.model
 
-import java.util.*
 import com.google.android.gms.maps.model.LatLng
+import java.time.LocalDateTime
 
 data class Sighting(
-   val datetime: Date,
+   val datetime: LocalDateTime,
    val location: LatLng,
    var count: Int? = null,
    var distanceKm: Double? = null,

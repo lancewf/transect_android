@@ -1,7 +1,5 @@
 package com.finfrock.transect.data
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.finfrock.transect.model.*
 import com.finfrock.transect.model.Observer
 import com.google.android.gms.maps.model.LatLng
@@ -59,27 +57,27 @@ object DataSource {
     }
 
     private fun loadFakeData() {
-        val now = Date()
+        val now = LocalDateTime.now()
         transects.add(
             TransectState(Transect(
                 id = UUID.randomUUID().toString(),
-                startDate = Date(),
-                endDate = Date(),
+                startDate = now,
+                endDate = now.plusHours(2),
                 startLatLon = LatLng(20.780584, -156.504399),
                 endLatLon = LatLng(20.572826, -156.652441),
                 sightings = listOf(
                     Sighting(
-                        datetime = Date(now.time + 1000*60*60*1),
+                        datetime = now.plusMinutes(33),
                         location = LatLng(20.730948, -156.529627),
                         count = 1
                     ),
                     Sighting(
-                        datetime = Date(now.time + 1000*60*70),
+                        datetime = now.plusMinutes(43),
                         location = LatLng(20.680398, -156.581261),
                         count = 2
                     ),
                     Sighting(
-                        datetime = Date(now.time + 1000*60*90),
+                        datetime = now.plusMinutes(73),
                         location = LatLng(20.630308, -156.609860),
                         count = 3
                     )
@@ -90,7 +88,8 @@ object DataSource {
         )
 
         transects.add(
-            TransectState(Transect(id = UUID.randomUUID().toString(), startDate = Date(), endDate = Date(),
+            TransectState(Transect(id = UUID.randomUUID().toString(),
+                startDate = LocalDateTime.now(), endDate = LocalDateTime.now(),
                 startLatLon = LatLng(0.0, 0.0), endLatLon = LatLng(0.0, 0.0),
                 sightings = emptyList(),
                 vesselId = 1, bearing = 77,

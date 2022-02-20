@@ -18,6 +18,7 @@ import com.finfrock.transect.model.Sighting
 import com.finfrock.transect.model.Transect
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.appbar.MaterialToolbar
+import java.time.LocalDateTime
 import java.util.*
 
 
@@ -30,7 +31,7 @@ class RunningTransectActivity : AppCompatActivity() {
         }
 
     private val mutableSightings = mutableListOf<Sighting>()
-    private val transectStart = Date()
+    private val transectStart = LocalDateTime.now()
     private lateinit var startLocation: LatLng
     private var vesselId: Int = -1
     private var observer1Id: Int = -1
@@ -180,7 +181,7 @@ class RunningTransectActivity : AppCompatActivity() {
             when (menuItem.itemId) {
                 R.id.action_stop -> {
                     counter.stop()
-                    val transectStopDate = Date()
+                    val transectStopDate = LocalDateTime.now()
                     locationProxy.getLocation().addOnSuccessListener { transectStopLatLon ->
                         storeTransect(transectStopLatLon, transectStopDate)
                         finish()
@@ -197,7 +198,7 @@ class RunningTransectActivity : AppCompatActivity() {
         }
     }
 
-    private fun storeTransect(transectStopLatLon: LatLng, transectStopDate: Date) {
+    private fun storeTransect(transectStopLatLon: LatLng, transectStopDate: LocalDateTime) {
         DataSource.addTransect(Transect(
             id = UUID.randomUUID().toString(),
             startDate = transectStart,

@@ -2,7 +2,6 @@ package com.finfrock.transect
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -17,7 +16,6 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.appbar.MaterialToolbar
-import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 
 
@@ -62,17 +60,17 @@ class TransectSummaryActivity: AppCompatActivity(), OnMapReadyCallback  {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onMapReady(googleMap: GoogleMap) {
-        val simpleDateFormat = SimpleDateFormat("hh:MM a z")
+        val timeFormat = DateTimeFormatter.ofPattern("hh:mm a")
         googleMap.addMarker(
             MarkerOptions()
                 .position(transect.startLatLon)
-                .title(simpleDateFormat.format(transect.startDate))
+                .title(transect.startDate.format(timeFormat))
                 .icon(getMarkerIconFromDrawable(R.drawable.ic_baseline_home_24))
         )
         googleMap.addMarker(
             MarkerOptions()
                 .position(transect.endLatLon)
-                .title(simpleDateFormat.format(transect.endDate))
+                .title(transect.endDate.format(timeFormat))
                 .icon(getMarkerIconFromDrawable(R.drawable.ic_baseline_flag_24))
         )
         var previousLatLng = transect.startLatLon
@@ -80,7 +78,7 @@ class TransectSummaryActivity: AppCompatActivity(), OnMapReadyCallback  {
             googleMap.addMarker(
                 MarkerOptions()
                     .position(it.location)
-                    .title(simpleDateFormat.format(transect.startDate))
+                    .title(it.datetime.format(timeFormat))
                     .icon(getMarkerIconFromDrawable(R.drawable.ic_bigfish2))
             )
             googleMap.addPolyline(PolylineOptions().add(

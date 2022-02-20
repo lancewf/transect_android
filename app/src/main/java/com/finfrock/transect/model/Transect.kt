@@ -2,11 +2,12 @@ package com.finfrock.transect.model
 
 import java.util.*
 import com.google.android.gms.maps.model.LatLng
+import java.time.LocalDateTime
 
 data class Transect(
     val id: String,
-    val startDate: Date,
-    val endDate: Date,
+    val startDate: LocalDateTime,
+    val endDate: LocalDateTime,
     val startLatLon: LatLng,
     val endLatLon: LatLng,
     val sightings: List<Sighting>,

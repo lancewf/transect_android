@@ -1,5 +1,6 @@
 package com.finfrock.transect.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,14 +12,18 @@ import com.finfrock.transect.R
 import com.finfrock.transect.ToggleButtonGroupTableLayout
 import com.finfrock.transect.model.GroupType
 import com.finfrock.transect.model.Sighting
+import com.finfrock.transect.model.TransectItem
+import com.finfrock.transect.model.WeatherObservation
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.textfield.TextInputLayout
 import java.time.LocalDateTime
 
-class SightingItemAdapter(private val dataset: MutableList<Sighting>,
+class SightingItemAdapter(private val context: Context,
+                          private val dataset: MutableList<TransectItem>,
                           private val locationProxy: LocationProxyLike
 ): RecyclerView.Adapter<SightingItemAdapter.ItemViewHolder>() {
 
-    class ItemViewHolder(view: View): RecyclerView.ViewHolder(view) {
+    class ItemViewHolder(view: View, viewType: Int): RecyclerView.ViewHolder(view) {
         companion object {
             val BEAUFORT_OPTIONS = listOf(
                 "0 (calm)",
@@ -39,41 +44,121 @@ class SightingItemAdapter(private val dataset: MutableList<Sighting>,
                 "Hard Rain",
                 "Haze/VOG")
         }
-        val countOptions: ToggleButtonGroupTableLayout = view.findViewById(R.id.count_options)
-        val distanceOptions: ToggleButtonGroupTableLayout = view.findViewById(R.id.distance_options)
-        val bearingOptions: ToggleButtonGroupTableLayout = view.findViewById(R.id.bearing_options)
-        val groupType: RadioGroup = view.findViewById(R.id.group_type_options)
-        val beaufort: TextInputLayout = view.findViewById(R.id.beaufort)
-        val weather: TextInputLayout = view.findViewById(R.id.weather)
+
+        lateinit var countOptions: ToggleButtonGroupTableLayout
+        lateinit var distanceOptions: ToggleButtonGroupTableLayout
+        lateinit var bearingOptions: ToggleButtonGroupTableLayout
+        lateinit var groupType: RadioGroup
+        lateinit var beaufort: TextInputLayout
+        lateinit var weather: TextInputLayout
 
         init {
-            val beaufortAdapter =
-                ArrayAdapter(view.context, R.layout.sighting_list_item, BEAUFORT_OPTIONS)
-            (beaufort.editText as? AutoCompleteTextView)?.setAdapter(beaufortAdapter)
+            if (viewType == R.layout.sighting_item) {
+                countOptions = view.findViewById(R.id.count_options)
+                distanceOptions = view.findViewById(R.id.distance_options)
+                bearingOptions = view.findViewById(R.id.bearing_options)
+                groupType= view.findViewById(R.id.group_type_options)
+            } else { // viewType ==  R.layout.weather_item
+                beaufort = view.findViewById(R.id.beaufort)
+                weather = view.findViewById(R.id.weather)
 
-            val weatherAdapter = ArrayAdapter(view.context, R.layout.sighting_list_item, WEATHER_OPTIONS)
-            (weather.editText as? AutoCompleteTextView)?.setAdapter(weatherAdapter)
+                val beaufortAdapter =
+                    ArrayAdapter(view.context, R.layout.sighting_list_item, BEAUFORT_OPTIONS)
+                (beaufort.editText as? AutoCompleteTextView)?.setAdapter(beaufortAdapter)
+
+                val weatherAdapter = ArrayAdapter(view.context, R.layout.sighting_list_item, WEATHER_OPTIONS)
+                (weather.editText as? AutoCompleteTextView)?.setAdapter(weatherAdapter)
+            }
         }
+    }
+
+    fun addNewWeatherObservation() {
+        val datetime = LocalDateTime.now()
+        locationProxy.getLocation().addOnSuccessListener {
+            addNewWeatherObservation(it, datetime)
+        }
+    }
+
+    fun addNewWeatherObservation(latlng: LatLng, datetime: LocalDateTime) {
+        dataset.add(TransectItem(weatherObs = WeatherObservation(
+            datetime = datetime,
+            location = latlng
+        )))
+        notifyItemInserted(itemCount -1 )
     }
 
     fun addNewSighting() {
         locationProxy.getLocation().addOnSuccessListener {
-            dataset.add(Sighting(
+            dataset.add(TransectItem(sighting = Sighting(
                 datetime = LocalDateTime.now(),
                 location = it
-            ))
+            )))
             notifyItemInserted(itemCount -1 )
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
-        val adapterLayout =
-            LayoutInflater.from(parent.context).inflate(R.layout.sighting_item, parent, false)
+    override fun getItemViewType(position: Int): Int {
 
-        val holder = ItemViewHolder(adapterLayout)
+       val item = dataset[position]
+        if (item.sighting != null) {
+            return R.layout.sighting_item
+        }
+        if (item.weatherObs != null) {
+            return R.layout.weather_item
+        }
+       return 0
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+        if (viewType == R.layout.sighting_item) {
+            return createSightingViewHolder(parent)
+        }
+        if (viewType == R.layout.weather_item ) {
+            return createWeatherViewHolder(parent)
+        }
+
+        throw Exception("View type $viewType not found")
+    }
+
+    private fun createWeatherViewHolder(parent: ViewGroup): ItemViewHolder {
+        val adapterLayout =
+            LayoutInflater.from(parent.context).inflate(
+                R.layout.weather_item, parent, false)
+
+        val holder = ItemViewHolder(adapterLayout, R.layout.weather_item)
+
+        holder.beaufort.editText?.doAfterTextChanged {
+            val item = dataset[holder.adapterPosition]
+            val index = ItemViewHolder.BEAUFORT_OPTIONS.indexOf(it.toString())
+            if ( index >= 0 ) {
+                item.weatherObs?.beaufort = index
+            } else {
+                item.weatherObs?.beaufort = null
+            }
+        }
+
+        holder.weather.editText?.doAfterTextChanged {
+            val item = dataset[holder.adapterPosition]
+            val index = ItemViewHolder.WEATHER_OPTIONS.indexOf(it.toString())
+            if ( index >= 0 ) {
+                item.weatherObs?.weather = index
+            } else {
+                item.weatherObs?.weather = null
+            }
+        }
+
+        return holder
+    }
+
+    private fun createSightingViewHolder(parent: ViewGroup): ItemViewHolder {
+        val adapterLayout =
+            LayoutInflater.from(parent.context).inflate(
+                R.layout.sighting_item, parent, false)
+
+        val holder = ItemViewHolder(adapterLayout, R.layout.sighting_item)
 
         holder.groupType.setOnCheckedChangeListener { _, id ->
-            val sighting = dataset[holder.adapterPosition]
+            val sighting = dataset[holder.adapterPosition].sighting!!
             when(id) {
                 R.id.option_mc ->
                     sighting.groupType = GroupType.MC
@@ -89,7 +174,7 @@ class SightingItemAdapter(private val dataset: MutableList<Sighting>,
         }
 
         holder.bearingOptions.setOnCheckedChangeListener { _, id ->
-            val sighting = dataset[holder.adapterPosition]
+            val sighting = dataset[holder.adapterPosition].sighting!!
             when(id) {
                 R.id.option_nine ->
                     sighting.bearing = 315
@@ -111,7 +196,7 @@ class SightingItemAdapter(private val dataset: MutableList<Sighting>,
         }
 
         holder.distanceOptions.setOnCheckedChangeListener { _, id ->
-            val sighting = dataset[holder.adapterPosition]
+            val sighting = dataset[holder.adapterPosition].sighting!!
             when(id) {
                 R.id.option_with_50m ->
                     sighting.distanceKm = 0.05
@@ -137,7 +222,7 @@ class SightingItemAdapter(private val dataset: MutableList<Sighting>,
         }
 
         holder.countOptions.setOnCheckedChangeListener { _, id ->
-            val sighting = dataset[holder.adapterPosition]
+            val sighting = dataset[holder.adapterPosition].sighting!!
             when(id) {
                 R.id.option_one_count ->
                     sighting.count = 1
@@ -160,31 +245,34 @@ class SightingItemAdapter(private val dataset: MutableList<Sighting>,
             }
         }
 
-        holder.beaufort.editText?.doAfterTextChanged {
-            val sighting = dataset[holder.adapterPosition]
-            val index = ItemViewHolder.BEAUFORT_OPTIONS.indexOf(it.toString())
-            if ( index >= 0 ) {
-                sighting.beaufort = index
-            } else {
-                sighting.beaufort = null
-            }
-        }
-
-        holder.weather.editText?.doAfterTextChanged {
-            val sighting = dataset[holder.adapterPosition]
-            val index = ItemViewHolder.WEATHER_OPTIONS.indexOf(it.toString())
-            if ( index >= 0 ) {
-                sighting.weather = index
-            } else {
-                sighting.weather = null
-            }
-        }
         return holder
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        val sighting = dataset[position]
+        val item = dataset[position]
 
+        if (item.sighting != null) {
+            displaySighting(holder, item.sighting!!)
+        } else {
+            displayWeatherObs(holder, item.weatherObs!!)
+        }
+    }
+
+    private fun displayWeatherObs(holder: ItemViewHolder, weather: WeatherObservation) {
+        if (weather.beaufort != null && weather.beaufort!! < 7) {
+            (holder.beaufort.editText as? AutoCompleteTextView)?.setText(ItemViewHolder.BEAUFORT_OPTIONS[weather.beaufort!!], false)
+        } else {
+            (holder.beaufort.editText as? AutoCompleteTextView)?.setText("", false)
+        }
+
+        if (weather.weather != null && weather.weather!! < 8) {
+            (holder.weather.editText as? AutoCompleteTextView)?.setText(ItemViewHolder.WEATHER_OPTIONS[weather.weather!!], false)
+        } else {
+            (holder.weather.editText as? AutoCompleteTextView)?.setText("", false)
+        }
+    }
+
+    private fun displaySighting(holder: ItemViewHolder, sighting: Sighting) {
         if (sighting.count != null) {
             when {
                 sighting.count == 1 -> holder.countOptions.check(R.id.option_one_count)
@@ -240,19 +328,8 @@ class SightingItemAdapter(private val dataset: MutableList<Sighting>,
             GroupType.UNKNOWN -> holder.groupType.check(R.id.option_unknown)
             else -> holder.groupType.clearCheck()
         }
-
-        if (sighting.beaufort != null && sighting.beaufort!! < 7) {
-            (holder.beaufort.editText as? AutoCompleteTextView)?.setText(ItemViewHolder.BEAUFORT_OPTIONS[sighting.beaufort!!], false)
-        } else {
-            (holder.beaufort.editText as? AutoCompleteTextView)?.setText("", false)
-        }
-
-        if (sighting.weather != null && sighting.weather!! < 8) {
-            (holder.weather.editText as? AutoCompleteTextView)?.setText(ItemViewHolder.WEATHER_OPTIONS[sighting.weather!!], false)
-        } else {
-            (holder.weather.editText as? AutoCompleteTextView)?.setText("", false)
-        }
     }
+
 
     override fun getItemCount() = dataset.size
 

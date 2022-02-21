@@ -48,7 +48,7 @@ class TransectItemAdapter(private val context: Context, private val transects: L
         val observer1Name = getObserverName(transect.observer1Id)
         val observer2Name = getObserverName(transect.observer2Id)
 
-        holder.sightingCountTextView.text = transect.sightings.size.toString()
+        holder.sightingCountTextView.text = transect.obs.size.toString()
         holder.observer1NameTextView.text = observer1Name
         holder.observer2NameTextView.text = observer2Name
         holder.bearingTextView.text = transect.bearing.toString()

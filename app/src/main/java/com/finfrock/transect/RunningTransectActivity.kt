@@ -14,8 +14,8 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.finfrock.transect.adapter.SightingItemAdapter
 import com.finfrock.transect.data.DataSource
-import com.finfrock.transect.model.Sighting
 import com.finfrock.transect.model.Transect
+import com.finfrock.transect.model.TransectItem
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.appbar.MaterialToolbar
 import java.time.LocalDateTime
@@ -30,7 +30,7 @@ class RunningTransectActivity : AppCompatActivity() {
             const val BEARING = "bearing"
         }
 
-    private val mutableSightings = mutableListOf<Sighting>()
+    private val mutableSightings = mutableListOf<TransectItem>()
     private val transectStart = LocalDateTime.now()
     private lateinit var startLocation: LatLng
     private var vesselId: Int = -1
@@ -102,7 +102,7 @@ class RunningTransectActivity : AppCompatActivity() {
 
         val recyclerView = findViewById<RecyclerView>(R.id.sighting_view)
 
-        val sightingAdapter = SightingItemAdapter(mutableSightings, locationProxy)
+        val sightingAdapter = SightingItemAdapter(this, mutableSightings, locationProxy)
         val sightingLayoutManager = LinearLayoutManager(this@RunningTransectActivity, LinearLayoutManager.HORIZONTAL, false)
         recyclerView.apply {
             layoutManager = sightingLayoutManager
@@ -158,10 +158,15 @@ class RunningTransectActivity : AppCompatActivity() {
             }
         })
 
-        val addButton = findViewById<Button>(R.id.addSightingButton)
-        addButton.isEnabled = false
-        addButton.setOnClickListener {
+        val addSightingButton = findViewById<Button>(R.id.addSightingButton)
+        addSightingButton.isEnabled = false
+        addSightingButton.setOnClickListener {
             sightingAdapter.addNewSighting()
+        }
+        val addWeatherButton = findViewById<Button>(R.id.addWeatherButton)
+        addWeatherButton.isEnabled = false
+        addWeatherButton.setOnClickListener {
+            sightingAdapter.addNewWeatherObservation()
         }
 
         val toolBar = findViewById<MaterialToolbar>(R.id.topAppBar)
@@ -194,7 +199,9 @@ class RunningTransectActivity : AppCompatActivity() {
 
         locationProxy.getLocation().addOnSuccessListener {
             startLocation = it
-            addButton.isEnabled = true
+            addSightingButton.isEnabled = true
+            addWeatherButton.isEnabled = true
+            sightingAdapter.addNewWeatherObservation(it, LocalDateTime.now())
         }
     }
 
@@ -205,7 +212,7 @@ class RunningTransectActivity : AppCompatActivity() {
             endDate = transectStopDate,
             startLatLon = this.startLocation,
             endLatLon = transectStopLatLon,
-            sightings = mutableSightings,
+            obs = mutableSightings,
             vesselId = vesselId,
             observer1Id = observer1Id,
             observer2Id = observer2Id,

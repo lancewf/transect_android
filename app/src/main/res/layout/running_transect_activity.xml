@@ -56,10 +56,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toEndOf="@+id/deleteButton"
-                app:layout_constraintEnd_toStartOf="@+id/addSightingButton"
+                app:layout_constraintEnd_toStartOf="@+id/addWeatherButton"
                 tools:text="6 of 8"
                 app:layout_constraintTop_toTopOf="@+id/deleteButton"
                 app:layout_constraintBottom_toBottomOf="@+id/deleteButton" />
+
+            <com.google.android.material.button.MaterialButton
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                app:icon="@drawable/ic_baseline_air_24"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                android:id="@+id/addWeatherButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toStartOf="@+id/addSightingButton"
+                app:layout_constraintTop_toBottomOf="@+id/sighting_view" />
 
             <com.google.android.material.button.MaterialButton
                 style="@style/Widget.MaterialComponents.Button.Icon"

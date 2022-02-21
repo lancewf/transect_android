@@ -74,18 +74,27 @@ class TransectSummaryActivity: AppCompatActivity(), OnMapReadyCallback  {
                 .icon(getMarkerIconFromDrawable(R.drawable.ic_baseline_flag_24))
         )
         var previousLatLng = transect.startLatLon
-        transect.sightings.forEach{
-            googleMap.addMarker(
-                MarkerOptions()
-                    .position(it.location)
-                    .title(it.datetime.format(timeFormat))
-                    .icon(getMarkerIconFromDrawable(R.drawable.ic_bigfish2))
-            )
+        transect.obs.drop(1).forEach{
+            if(it.isSighting()) {
+                googleMap.addMarker(
+                    MarkerOptions()
+                        .position(it.location())
+                        .title(it.datetime().format(timeFormat))
+                        .icon(getMarkerIconFromDrawable(R.drawable.ic_bigfish2))
+                )
+            } else {
+                googleMap.addMarker(
+                    MarkerOptions()
+                        .position(it.location())
+                        .title(it.datetime().format(timeFormat))
+                        .icon(getMarkerIconFromDrawable(R.drawable.ic_icons8_sun))
+                )
+            }
             googleMap.addPolyline(PolylineOptions().add(
-                previousLatLng, it.location
+                previousLatLng, it.location()
             ))
 
-            previousLatLng = it.location
+            previousLatLng = it.location()
         }
 
         googleMap.addPolyline(PolylineOptions().add(
@@ -97,7 +106,7 @@ class TransectSummaryActivity: AppCompatActivity(), OnMapReadyCallback  {
     }
 
     private fun findLatLngBounds(): LatLngBounds {
-        val locations = transect.sightings.map{it.location} + transect.startLatLon + transect.endLatLon
+        val locations = transect.obs.map{it.location()} + transect.startLatLon + transect.endLatLon
 
         val latMax = locations.maxOfOrNull{it.latitude}
         val latMin = locations.minOfOrNull{it.latitude}

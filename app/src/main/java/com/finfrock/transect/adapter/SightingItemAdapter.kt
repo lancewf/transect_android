@@ -10,16 +10,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.finfrock.transect.LocationProxyLike
 import com.finfrock.transect.R
 import com.finfrock.transect.ToggleButtonGroupTableLayout
-import com.finfrock.transect.model.GroupType
-import com.finfrock.transect.model.Sighting
-import com.finfrock.transect.model.TransectItem
-import com.finfrock.transect.model.WeatherObservation
+import com.finfrock.transect.model.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.textfield.TextInputLayout
 import java.time.LocalDateTime
 
 class SightingItemAdapter(private val context: Context,
-                          private val dataset: MutableList<TransectItem>,
+                          private val dataset: MutableList<Observation>,
                           private val locationProxy: LocationProxyLike
 ): RecyclerView.Adapter<SightingItemAdapter.ItemViewHolder>() {
 
@@ -79,34 +76,33 @@ class SightingItemAdapter(private val context: Context,
         }
     }
 
-    fun addNewWeatherObservation(latlng: LatLng, datetime: LocalDateTime) {
-        dataset.add(TransectItem(weatherObs = WeatherObservation(
+    fun addNewWeatherObservation(latLng: LatLng, datetime: LocalDateTime) {
+        dataset.add(WeatherObservation(
             datetime = datetime,
-            location = latlng
-        )))
+            location = latLng
+        ))
         notifyItemInserted(itemCount -1 )
     }
 
     fun addNewSighting() {
         locationProxy.getLocation().addOnSuccessListener {
-            dataset.add(TransectItem(sighting = Sighting(
+            dataset.add(Sighting(
                 datetime = LocalDateTime.now(),
                 location = it
-            )))
+            ))
             notifyItemInserted(itemCount -1 )
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-
-       val item = dataset[position]
-        if (item.sighting != null) {
+        val item = dataset[position]
+        if (item is Sighting) {
             return R.layout.sighting_item
         }
-        if (item.weatherObs != null) {
+        if (item is WeatherObservation) {
             return R.layout.weather_item
         }
-       return 0
+        return 0
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -128,22 +124,22 @@ class SightingItemAdapter(private val context: Context,
         val holder = ItemViewHolder(adapterLayout, R.layout.weather_item)
 
         holder.beaufort.editText?.doAfterTextChanged {
-            val item = dataset[holder.adapterPosition]
+            val item = dataset[holder.adapterPosition] as WeatherObservation
             val index = ItemViewHolder.BEAUFORT_OPTIONS.indexOf(it.toString())
             if ( index >= 0 ) {
-                item.weatherObs?.beaufort = index
+                item.beaufort = index
             } else {
-                item.weatherObs?.beaufort = null
+                item.beaufort = null
             }
         }
 
         holder.weather.editText?.doAfterTextChanged {
-            val item = dataset[holder.adapterPosition]
+            val item = dataset[holder.adapterPosition] as WeatherObservation
             val index = ItemViewHolder.WEATHER_OPTIONS.indexOf(it.toString())
             if ( index >= 0 ) {
-                item.weatherObs?.weather = index
+                item.weather = index
             } else {
-                item.weatherObs?.weather = null
+                item.weather = null
             }
         }
 
@@ -158,7 +154,7 @@ class SightingItemAdapter(private val context: Context,
         val holder = ItemViewHolder(adapterLayout, R.layout.sighting_item)
 
         holder.groupType.setOnCheckedChangeListener { _, id ->
-            val sighting = dataset[holder.adapterPosition].sighting!!
+            val sighting = dataset[holder.adapterPosition] as Sighting
             when(id) {
                 R.id.option_mc ->
                     sighting.groupType = GroupType.MC
@@ -174,7 +170,7 @@ class SightingItemAdapter(private val context: Context,
         }
 
         holder.bearingOptions.setOnCheckedChangeListener { _, id ->
-            val sighting = dataset[holder.adapterPosition].sighting!!
+            val sighting = dataset[holder.adapterPosition] as Sighting
             when(id) {
                 R.id.option_nine ->
                     sighting.bearing = 315
@@ -196,7 +192,7 @@ class SightingItemAdapter(private val context: Context,
         }
 
         holder.distanceOptions.setOnCheckedChangeListener { _, id ->
-            val sighting = dataset[holder.adapterPosition].sighting!!
+            val sighting = dataset[holder.adapterPosition] as Sighting
             when(id) {
                 R.id.option_with_50m ->
                     sighting.distanceKm = 0.05
@@ -222,7 +218,7 @@ class SightingItemAdapter(private val context: Context,
         }
 
         holder.countOptions.setOnCheckedChangeListener { _, id ->
-            val sighting = dataset[holder.adapterPosition].sighting!!
+            val sighting = dataset[holder.adapterPosition] as Sighting
             when(id) {
                 R.id.option_one_count ->
                     sighting.count = 1
@@ -251,10 +247,10 @@ class SightingItemAdapter(private val context: Context,
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = dataset[position]
 
-        if (item.sighting != null) {
-            displaySighting(holder, item.sighting!!)
+        if (item is Sighting) {
+            displaySighting(holder, item)
         } else {
-            displayWeatherObs(holder, item.weatherObs!!)
+            displayWeatherObs(holder, item as WeatherObservation)
         }
     }
 

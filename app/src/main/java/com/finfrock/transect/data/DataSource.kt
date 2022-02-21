@@ -66,33 +66,33 @@ object DataSource {
                 startLatLon = LatLng(20.780584, -156.504399),
                 endLatLon = LatLng(20.572826, -156.652441),
                 obs = listOf(
-                    TransectItem(weatherObs = WeatherObservation(
+                    WeatherObservation(
                         datetime = now,
                         location = LatLng(20.780584, -156.504399),
-                    )),
-                    TransectItem(sighting = Sighting(
+                    ),
+                    Sighting(
                         datetime = now.plusMinutes(33),
                         location = LatLng(20.730948, -156.529627),
                         count = 1
-                    )),
-                    TransectItem(weatherObs = WeatherObservation(
+                    ),
+                    WeatherObservation(
                         datetime = now.plusMinutes(43),
                         location = LatLng(20.711587, -156.536530),
-                    )),
-                    TransectItem(sighting = Sighting(
+                    ),
+                    Sighting(
                         datetime = now.plusMinutes(50),
                         location = LatLng(20.680398, -156.581261),
                         count = 2
-                    )),
-                    TransectItem(weatherObs = WeatherObservation(
+                    ),
+                    WeatherObservation(
                         datetime = now.plusMinutes(65),
                         location = LatLng(20.652363, -156.568204),
-                    )),
-                    TransectItem(sighting = Sighting(
+                    ),
+                    Sighting(
                         datetime = now.plusMinutes(83),
                         location = LatLng(20.630308, -156.609860),
                         count = 3
-                    )),
+                    ),
                 ),
                 vesselId = 1, bearing = 90,
                 observer1Id = 4, observer2Id = 5

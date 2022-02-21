@@ -15,12 +15,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.finfrock.transect.adapter.SightingItemAdapter
 import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.Transect
-import com.finfrock.transect.model.TransectItem
+import com.finfrock.transect.model.Observation
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.appbar.MaterialToolbar
 import java.time.LocalDateTime
 import java.util.*
-
 
 class RunningTransectActivity : AppCompatActivity() {
         companion object {
@@ -30,7 +29,7 @@ class RunningTransectActivity : AppCompatActivity() {
             const val BEARING = "bearing"
         }
 
-    private val mutableSightings = mutableListOf<TransectItem>()
+    private val mutableSightings = mutableListOf<Observation>()
     private val transectStart = LocalDateTime.now()
     private lateinit var startLocation: LatLng
     private var vesselId: Int = -1

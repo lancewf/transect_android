@@ -1,6 +1,5 @@
 package com.finfrock.transect.model
 
-import java.util.*
 import com.google.android.gms.maps.model.LatLng
 import java.time.LocalDateTime
 
@@ -10,7 +9,7 @@ data class Transect(
     val endDate: LocalDateTime,
     val startLatLon: LatLng,
     val endLatLon: LatLng,
-    val obs: List<TransectItem>,
+    val obs: List<Observation>,
     val vesselId: Int,
     val bearing: Int,
     val observer1Id: Int,

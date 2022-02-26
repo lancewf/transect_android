@@ -1,4 +1,4 @@
-package com.finfrock.transect;
+package com.finfrock.transect.util;
 
 import android.os.Handler;
 import android.os.Message;

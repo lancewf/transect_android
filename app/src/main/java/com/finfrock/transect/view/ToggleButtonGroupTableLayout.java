@@ -1,4 +1,4 @@
-package com.finfrock.transect;
+package com.finfrock.transect.view;
 
 
 import android.content.Context;

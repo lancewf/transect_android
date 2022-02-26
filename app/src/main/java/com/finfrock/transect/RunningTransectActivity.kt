@@ -16,6 +16,8 @@ import com.finfrock.transect.adapter.SightingItemAdapter
 import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.Transect
 import com.finfrock.transect.model.Observation
+import com.finfrock.transect.util.CountUpTimer
+import com.finfrock.transect.util.MockLocationProxy
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.appbar.MaterialToolbar
 import java.time.LocalDateTime
@@ -101,7 +103,7 @@ class RunningTransectActivity : AppCompatActivity() {
 
         val recyclerView = findViewById<RecyclerView>(R.id.sighting_view)
 
-        val sightingAdapter = SightingItemAdapter(this, mutableSightings, locationProxy)
+        val sightingAdapter = SightingItemAdapter(mutableSightings, locationProxy)
         val sightingLayoutManager = LinearLayoutManager(this@RunningTransectActivity, LinearLayoutManager.HORIZONTAL, false)
         recyclerView.apply {
             layoutManager = sightingLayoutManager

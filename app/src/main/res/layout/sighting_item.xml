@@ -34,7 +34,7 @@
             app:layout_constraintStart_toEndOf="@+id/icon_count"
             app:layout_constraintTop_toTopOf="parent"/>
 
-        <com.finfrock.transect.ToggleButtonGroupTableLayout
+        <com.finfrock.transect.view.ToggleButtonGroupTableLayout
             android:id="@+id/count_options"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -87,7 +87,7 @@
                     android:layout_height="wrap_content"
                     android:text=">13" />
             </TableRow>
-        </com.finfrock.transect.ToggleButtonGroupTableLayout>
+        </com.finfrock.transect.view.ToggleButtonGroupTableLayout>
 
         <ImageView
             android:id="@+id/icon_distance"
@@ -107,7 +107,7 @@
             app:layout_constraintStart_toEndOf="@+id/icon_distance"
             app:layout_constraintTop_toBottomOf="@+id/count_options" />
 
-        <com.finfrock.transect.ToggleButtonGroupTableLayout
+        <com.finfrock.transect.view.ToggleButtonGroupTableLayout
             android:id="@+id/distance_options"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -169,7 +169,7 @@
                     android:layout_height="wrap_content"
                     android:text="> 1 mile" />
             </TableRow>
-        </com.finfrock.transect.ToggleButtonGroupTableLayout>
+        </com.finfrock.transect.view.ToggleButtonGroupTableLayout>
         <ImageView
             android:id="@+id/icon_bearing"
             android:layout_width="wrap_content"
@@ -188,7 +188,7 @@
             app:layout_constraintStart_toEndOf="@+id/icon_bearing"
             app:layout_constraintTop_toBottomOf="@+id/distance_options" />
 
-        <com.finfrock.transect.ToggleButtonGroupTableLayout
+        <com.finfrock.transect.view.ToggleButtonGroupTableLayout
             android:id="@+id/bearing_options"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -237,7 +237,7 @@
                     android:layout_height="wrap_content"
                     android:text="3" />
             </TableRow>
-        </com.finfrock.transect.ToggleButtonGroupTableLayout>
+        </com.finfrock.transect.view.ToggleButtonGroupTableLayout>
 
         <ImageView
             android:id="@+id/icon_group_type"

@@ -1,4 +1,4 @@
-package com.finfrock.transect
+package com.finfrock.transect.util
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -9,13 +9,13 @@ import androidx.core.app.ActivityCompat
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.TaskCompletionSource
 
 class LocationProxy(private val context: Context,
-                    private val fusedLocationClient: FusedLocationProviderClient): LocationProxyLike {
+                    private val fusedLocationClient: FusedLocationProviderClient):
+    LocationProxyLike {
 
     @SuppressLint("MissingPermission")
     override fun getLocation(): Task<LatLng> {

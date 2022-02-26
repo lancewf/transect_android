@@ -12,18 +12,6 @@ data class Sighting(
    var groupType: GroupType? = null
 ): Observation
 
-data class WeatherObservation(
-   override val datetime: LocalDateTime,
-   override val location: LatLng,
-   var beaufort: Int? = null,
-   var weather: Int? = null
-): Observation
-
-interface Observation {
-    val datetime: LocalDateTime
-    val location: LatLng
-}
-
 enum class GroupType {
    MC, MCE, CG, UNKNOWN
 }

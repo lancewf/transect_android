@@ -1,4 +1,4 @@
-package com.finfrock.transect
+package com.finfrock.transect.view
 
 import android.content.Context
 import android.content.Intent
@@ -12,6 +12,8 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import androidx.fragment.app.Fragment
+import com.finfrock.transect.R
+import com.finfrock.transect.RunningTransectActivity
 import com.finfrock.transect.data.DataSource
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout

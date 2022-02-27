@@ -8,7 +8,10 @@ class MockLocationProxy: LocationProxyLike {
 
     override fun getLocation(): Task<LatLng> {
         val taskCompletionSource = TaskCompletionSource<LatLng>()
-        taskCompletionSource.setResult(LatLng(0.0, 0.0))
+        taskCompletionSource.run {
+            Thread.sleep(3000)
+            taskCompletionSource.setResult(LatLng(0.0, 0.0))
+        }
 
         return taskCompletionSource.task
     }

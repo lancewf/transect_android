@@ -69,29 +69,44 @@ object DataSource {
                     WeatherObservation(
                         datetime = now,
                         location = LatLng(20.780584, -156.504399),
+                        beaufort = 1,
+                        weather = 1
                     ),
                     Sighting(
                         datetime = now.plusMinutes(33),
                         location = LatLng(20.730948, -156.529627),
-                        count = 1
+                        count = 1,
+                        distanceKm = 0.5,
+                        bearing = 90,
+                        groupType = GroupType.UNKNOWN
                     ),
                     WeatherObservation(
                         datetime = now.plusMinutes(43),
                         location = LatLng(20.711587, -156.536530),
+                        beaufort = 1,
+                        weather = 1
                     ),
                     Sighting(
                         datetime = now.plusMinutes(50),
                         location = LatLng(20.680398, -156.581261),
-                        count = 2
+                        count = 2,
+                        distanceKm = 0.5,
+                        bearing = 90,
+                        groupType = GroupType.UNKNOWN
                     ),
                     WeatherObservation(
                         datetime = now.plusMinutes(65),
                         location = LatLng(20.652363, -156.568204),
+                        beaufort = 1,
+                        weather = 1
                     ),
                     Sighting(
                         datetime = now.plusMinutes(83),
                         location = LatLng(20.630308, -156.609860),
-                        count = 3
+                        count = 3,
+                        distanceKm = 0.5,
+                        bearing = 90,
+                        groupType = GroupType.UNKNOWN
                     ),
                 ),
                 vesselId = 1, bearing = 90,

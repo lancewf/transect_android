@@ -33,6 +33,15 @@
             android:layout_marginStart="5dp"
             app:layout_constraintStart_toEndOf="@+id/icon_count"
             app:layout_constraintTop_toTopOf="parent"/>
+        <ImageView
+            android:id="@+id/icon_count_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_baseline_error_24"
+            app:layout_constraintBottom_toBottomOf="@+id/countLabel"
+            app:layout_constraintStart_toEndOf="@+id/countLabel"
+            app:layout_constraintTop_toTopOf="@+id/countLabel" />
 
         <com.finfrock.transect.view.ToggleButtonGroupTableLayout
             android:id="@+id/count_options"
@@ -106,6 +115,15 @@
             android:layout_marginStart="5dp"
             app:layout_constraintStart_toEndOf="@+id/icon_distance"
             app:layout_constraintTop_toBottomOf="@+id/count_options" />
+        <ImageView
+            android:id="@+id/icon_distance_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_baseline_error_24"
+            app:layout_constraintBottom_toBottomOf="@+id/distance_label"
+            app:layout_constraintStart_toEndOf="@+id/distance_label"
+            app:layout_constraintTop_toTopOf="@+id/distance_label" />
 
         <com.finfrock.transect.view.ToggleButtonGroupTableLayout
             android:id="@+id/distance_options"
@@ -187,6 +205,15 @@
             android:layout_marginStart="5dp"
             app:layout_constraintStart_toEndOf="@+id/icon_bearing"
             app:layout_constraintTop_toBottomOf="@+id/distance_options" />
+        <ImageView
+            android:id="@+id/icon_bearing_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_baseline_error_24"
+            app:layout_constraintBottom_toBottomOf="@+id/bearing_label"
+            app:layout_constraintStart_toEndOf="@+id/bearing_label"
+            app:layout_constraintTop_toTopOf="@+id/bearing_label" />
 
         <com.finfrock.transect.view.ToggleButtonGroupTableLayout
             android:id="@+id/bearing_options"
@@ -256,6 +283,15 @@
             android:layout_marginStart="5dp"
             app:layout_constraintStart_toEndOf="@+id/icon_group_type"
             app:layout_constraintTop_toBottomOf="@+id/bearing_options" />
+        <ImageView
+            android:id="@+id/icon_group_type_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_baseline_error_24"
+            app:layout_constraintBottom_toBottomOf="@+id/group_type_label"
+            app:layout_constraintStart_toEndOf="@+id/group_type_label"
+            app:layout_constraintTop_toTopOf="@+id/group_type_label" />
         <RadioGroup
             android:id="@+id/group_type_options"
             android:layout_width="wrap_content"

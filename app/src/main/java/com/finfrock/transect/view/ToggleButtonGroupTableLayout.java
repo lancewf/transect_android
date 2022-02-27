@@ -42,10 +42,10 @@ public class ToggleButtonGroupTableLayout extends TableLayout implements OnClick
             activeRadioButton.setChecked(false);
         }
         rb.setChecked(true);
+        activeRadioButton = rb;
         if (mOnCheckedChangeListener != null) {
             mOnCheckedChangeListener.onCheckedChanged(null, rb.getId());
         }
-        activeRadioButton = rb;
     }
 
     /* (non-Javadoc)
@@ -67,6 +67,13 @@ public class ToggleButtonGroupTableLayout extends TableLayout implements OnClick
 
     public void setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener listener) {
         mOnCheckedChangeListener = listener;
+    }
+
+    public int getCheckedRadioButtonId() {
+        if (activeRadioButton != null) {
+            return activeRadioButton.getId();
+        }
+        return -1;
     }
 
     public void check(@IdRes int id) {
@@ -97,7 +104,6 @@ public class ToggleButtonGroupTableLayout extends TableLayout implements OnClick
         super.addView(child, params);
         setChildrenOnClickListener((TableRow)child);
     }
-
 
     private void setChildrenOnClickListener(TableRow tr) {
         final int c = tr.getChildCount();

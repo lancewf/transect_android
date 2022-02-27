@@ -16,8 +16,11 @@ import com.finfrock.transect.adapter.SightingItemAdapter
 import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.Transect
 import com.finfrock.transect.model.Observation
+import com.finfrock.transect.model.ObservationBuilder
 import com.finfrock.transect.util.CountUpTimer
+import com.finfrock.transect.util.LocationProxy
 import com.finfrock.transect.util.MockLocationProxy
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.appbar.MaterialToolbar
 import java.time.LocalDateTime
@@ -31,7 +34,7 @@ class RunningTransectActivity : AppCompatActivity() {
             const val BEARING = "bearing"
         }
 
-    private val mutableSightings = mutableListOf<Observation>()
+    private val observationBuilder = ObservationBuilder()
     private val transectStart = LocalDateTime.now()
     private lateinit var startLocation: LatLng
     private var vesselId: Int = -1
@@ -105,19 +108,16 @@ class RunningTransectActivity : AppCompatActivity() {
 
         val recyclerView = findViewById<RecyclerView>(R.id.sighting_view)
 
-        val sightingAdapter = SightingItemAdapter(mutableSightings, locationProxy)
+        val sightingAdapter = SightingItemAdapter(observationBuilder, locationProxy)
         val sightingLayoutManager = LinearLayoutManager(this@RunningTransectActivity, LinearLayoutManager.HORIZONTAL, false)
         recyclerView.apply {
             layoutManager = sightingLayoutManager
             adapter = sightingAdapter
         }
         val pagerTextView: TextView = findViewById(R.id.pager_view)
-        val pagerViewer = PagerViewer(pagerTextView) { -> mutableSightings.size }
+        val pagerViewer = PagerViewer(pagerTextView) { -> observationBuilder.size() }
 
         PagerSnapHelper().attachToRecyclerView(recyclerView)
-        // use the below Snap Helper to scroll more than one item at a time.
-//        LinearSnapHelper().attachToRecyclerView(recyclerView)
-//        recyclerView.addItemDecoration(LinePagerIndicatorDecoration())
         recyclerView.setHasFixedSize(true)
 
         pagerViewer.updatePage(-1)
@@ -135,18 +135,19 @@ class RunningTransectActivity : AppCompatActivity() {
         deleteButton.isEnabled = false
         deleteButton.setOnClickListener {
             val selectedIndex = sightingLayoutManager.findFirstVisibleItemPosition()
-            if (mutableSightings.size > 0) {
-                mutableSightings.removeAt(selectedIndex)
+            if (observationBuilder.nonEmpty()) {
+                observationBuilder.removeAt(selectedIndex)
                 sightingAdapter.notifyItemRemoved(selectedIndex)
 
                 when {
-                    selectedIndex > mutableSightings.size - 1 -> pagerViewer.updatePage(mutableSightings.size - 1)
+                    selectedIndex > observationBuilder.size() - 1 ->
+                        pagerViewer.updatePage(observationBuilder.size() - 1)
                     selectedIndex > 0 -> pagerViewer.updatePage(selectedIndex)
                     else -> pagerViewer.updatePage(0)
                 }
             }
 
-            if (mutableSightings.size == 0) {
+            if (observationBuilder.isEmpty()) {
                 deleteButton.isEnabled = false
             }
         }
@@ -155,13 +156,13 @@ class RunningTransectActivity : AppCompatActivity() {
             override fun onItemRangeInserted(start: Int, count: Int) {
                 recyclerView.smoothScrollToPosition(start +1)
                 pagerViewer.updatePage(start +1)
-                if (mutableSightings.size > 0) {
+                if (observationBuilder.nonEmpty()) {
                     deleteButton.isEnabled = true
                 }
             }
         })
-        sightingAdapter.onErrorStatusChanged{ status: Boolean ->
-            allowNewObservations(status)
+        observationBuilder.afterDataChanged {
+            allowNewObservations(observationBuilder.isValid())
         }
 
         addSightingButton = findViewById<Button>(R.id.addSightingButton)
@@ -203,7 +204,6 @@ class RunningTransectActivity : AppCompatActivity() {
 
         locationProxy.getLocation().addOnSuccessListener {
             startLocation = it
-            allowNewObservations(true)
             sightingAdapter.addNewWeatherObservation(it, LocalDateTime.now())
         }
         allowNewObservations(false)
@@ -221,7 +221,7 @@ class RunningTransectActivity : AppCompatActivity() {
             endDate = transectStopDate,
             startLatLon = this.startLocation,
             endLatLon = transectStopLatLon,
-            obs = mutableSightings,
+            obs = observationBuilder.toList(),
             vesselId = vesselId,
             observer1Id = observer1Id,
             observer2Id = observer2Id,

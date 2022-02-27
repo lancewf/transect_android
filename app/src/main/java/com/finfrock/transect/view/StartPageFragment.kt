@@ -63,17 +63,27 @@ class StartPageFragment : Fragment() {
 
         val bearingTextField: TextInputEditText = requireView().findViewById(R.id.bearing_edit_text)
         bearingTextField.isDirty
-        bearingTextField.addTextChangedListener(BearingTextWatcher(bearingTextField))
         bearingTextField.addTextChangedListener(
             object : TextWatcher {
                 override fun afterTextChanged(s: Editable?) {
-                    bearing = bearingTextField.text.toString().toInt()
+                    bearing = bearingTextField.text.toString().toIntOrNull()
                     checkNewTransectButton()
                 }
 
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { }
 
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { }
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    if (s.isNullOrBlank()) {
+                        bearingTextField.error = "can not be empty"
+                        return
+                    }
+                    val bearing = s.toString().toIntOrNull()
+                    when {
+                        bearing == null -> bearingTextField.error = "not a integer"
+                        bearing < 0 -> bearingTextField.error = "less than 0"
+                        bearing > 360  -> bearingTextField.error = "greater than 360"
+                    }
+                }
             }
         )
 
@@ -108,23 +118,5 @@ class StartPageFragment : Fragment() {
         startTransectButton.isEnabled = selectedVessel != null &&
                 selectedObserver1 != null &&
                 bearing != null
-    }
-
-    private class BearingTextWatcher(private val textInput: TextInputEditText) : TextWatcher {
-        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) { }
-        override fun afterTextChanged(p0: Editable?) { }
-
-        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            if (p0.isNullOrBlank()) {
-                this.textInput.error = "can not be empty"
-                return
-            }
-            val bearing = p0.toString().toIntOrNull()
-            when {
-                bearing == null -> this.textInput.error = "not a integer"
-                bearing < 0 -> this.textInput.error = "less than 0"
-                bearing > 360  -> this.textInput.error = "greater than 360"
-            }
-        }
     }
 }

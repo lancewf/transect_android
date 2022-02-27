@@ -3,6 +3,7 @@ package com.finfrock.transect.adapter.holder
 import android.view.View
 import android.widget.RadioGroup
 import com.finfrock.transect.R
+import com.finfrock.transect.adapter.OnErrorStatusChangeListener
 import com.finfrock.transect.view.ToggleButtonGroupTableLayout
 import com.finfrock.transect.model.GroupType
 import com.finfrock.transect.model.Observation
@@ -14,6 +15,7 @@ class SightingItemViewHolder(view: View,
     private val distanceOptions: ToggleButtonGroupTableLayout = view.findViewById(R.id.distance_options)
     private val bearingOptions: ToggleButtonGroupTableLayout = view.findViewById(R.id.bearing_options)
     private val groupType: RadioGroup = view.findViewById(R.id.group_type_options)
+    private val listeners = mutableListOf<(Boolean) -> Unit>()
 
     init {
         groupType.setOnCheckedChangeListener { _, id ->
@@ -173,5 +175,9 @@ class SightingItemViewHolder(view: View,
                 else -> groupType.clearCheck()
             }
         }
+    }
+
+    override fun onErrorStatusChanged(listener: (Boolean) -> Unit) {
+        listeners.add(listener)
     }
 }

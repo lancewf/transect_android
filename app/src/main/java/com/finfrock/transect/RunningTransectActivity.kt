@@ -38,6 +38,8 @@ class RunningTransectActivity : AppCompatActivity() {
     private var observer1Id: Int = -1
     private var observer2Id: Int? = null
     private var bearing: Int = -1
+    private lateinit var addSightingButton: Button
+    private lateinit var addWeatherButton: Button
 
     private val requestPermissionLauncher =
         registerForActivityResult(
@@ -158,14 +160,15 @@ class RunningTransectActivity : AppCompatActivity() {
                 }
             }
         })
+        sightingAdapter.onErrorStatusChanged{ status: Boolean ->
+            allowNewObservations(status)
+        }
 
-        val addSightingButton = findViewById<Button>(R.id.addSightingButton)
-        addSightingButton.isEnabled = false
+        addSightingButton = findViewById<Button>(R.id.addSightingButton)
         addSightingButton.setOnClickListener {
             sightingAdapter.addNewSighting()
         }
-        val addWeatherButton = findViewById<Button>(R.id.addWeatherButton)
-        addWeatherButton.isEnabled = false
+        addWeatherButton = findViewById<Button>(R.id.addWeatherButton)
         addWeatherButton.setOnClickListener {
             sightingAdapter.addNewWeatherObservation()
         }
@@ -200,10 +203,15 @@ class RunningTransectActivity : AppCompatActivity() {
 
         locationProxy.getLocation().addOnSuccessListener {
             startLocation = it
-            addSightingButton.isEnabled = true
-            addWeatherButton.isEnabled = true
+            allowNewObservations(true)
             sightingAdapter.addNewWeatherObservation(it, LocalDateTime.now())
         }
+        allowNewObservations(false)
+    }
+
+    private fun allowNewObservations(allow: Boolean) {
+        addSightingButton.isEnabled = allow
+        addWeatherButton.isEnabled = allow
     }
 
     private fun storeTransect(transectStopLatLon: LatLng, transectStopDate: LocalDateTime) {

@@ -1,9 +1,12 @@
 package com.finfrock.transect.adapter.holder
 
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.core.widget.doAfterTextChanged
+import androidx.core.widget.doOnTextChanged
 import com.finfrock.transect.R
 import com.finfrock.transect.model.Observation
 import com.finfrock.transect.model.WeatherObservation
@@ -32,40 +35,47 @@ class WeatherItemViewHolder(view: View,
             "Haze/VOG")
     }
 
-    private val beaufort: TextInputLayout = view.findViewById(R.id.beaufort)
-    private val weather: TextInputLayout = view.findViewById(R.id.weather)
+    private val beaufort: AutoCompleteTextView = view.findViewById(R.id.beaufort_edit)
+    private val weather: AutoCompleteTextView = view.findViewById(R.id.weather_edit)
+    private val listeners = mutableListOf<(Boolean) -> Unit>()
 
     init {
         val beaufortAdapter =
             ArrayAdapter(view.context, R.layout.sighting_list_item, BEAUFORT_OPTIONS)
-        (beaufort.editText as? AutoCompleteTextView)?.setAdapter(beaufortAdapter)
+        beaufort.setAdapter(beaufortAdapter)
 
         val weatherAdapter = ArrayAdapter(view.context, R.layout.sighting_list_item,
             WEATHER_OPTIONS
         )
-        (weather.editText as? AutoCompleteTextView)?.setAdapter(weatherAdapter)
+        weather.setAdapter(weatherAdapter)
 
-        beaufort.editText?.doAfterTextChanged {
+        beaufort.doAfterTextChanged {
             val item = observations[adapterPosition]
             if (item is WeatherObservation) {
                 val index = BEAUFORT_OPTIONS.indexOf(it.toString())
                 if (index >= 0) {
                     item.beaufort = index
+                    beaufort.error = null
                 } else {
                     item.beaufort = null
+                    beaufort.error = "Can not be blank"
                 }
+                setStatus()
             }
         }
 
-        weather.editText?.doAfterTextChanged {
+        weather.doAfterTextChanged {
             val item = observations[adapterPosition]
             if (item is WeatherObservation) {
                 val index = WEATHER_OPTIONS.indexOf(it.toString())
                 if (index >= 0) {
+                    weather.error = null
                     item.weather = index
                 } else {
+                    weather.error = "Can not be blank"
                     item.weather = null
                 }
+                setStatus()
             }
         }
     }
@@ -73,16 +83,31 @@ class WeatherItemViewHolder(view: View,
     override fun display(obs: Observation) {
         if (obs is WeatherObservation) {
             if (obs.beaufort != null && obs.beaufort!! < 7) {
-                (beaufort.editText as? AutoCompleteTextView)?.setText(BEAUFORT_OPTIONS[obs.beaufort!!], false)
+                beaufort.setText(BEAUFORT_OPTIONS[obs.beaufort!!], false)
             } else {
-                (beaufort.editText as? AutoCompleteTextView)?.setText("", false)
+                beaufort.setText("", false)
             }
 
             if (obs.weather != null && obs.weather!! < 8) {
-                (weather.editText as? AutoCompleteTextView)?.setText(WEATHER_OPTIONS[obs.weather!!], false)
+                weather.setText(WEATHER_OPTIONS[obs.weather!!], false)
+                weather.error = null
             } else {
-                (weather.editText as? AutoCompleteTextView)?.setText("", false)
+                weather.setText("", false)
+                weather.error = "Can not be blank"
             }
+            setStatus()
         }
+    }
+
+    private fun setStatus() {
+        if (weather.error == null && beaufort.error == null) {
+            listeners.forEach{it(true)}
+        } else {
+            listeners.forEach{it(false)}
+        }
+    }
+
+    override fun onErrorStatusChanged(listener: (Boolean) -> Unit) {
+        listeners.add(listener)
     }
 }

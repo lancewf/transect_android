@@ -3,19 +3,22 @@ package com.finfrock.transect.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.finfrock.transect.util.LocationProxyLike
 import com.finfrock.transect.R
 import com.finfrock.transect.adapter.holder.ObservationItemViewHolder
 import com.finfrock.transect.adapter.holder.SightingItemViewHolder
 import com.finfrock.transect.adapter.holder.WeatherItemViewHolder
-import com.finfrock.transect.model.*
+import com.finfrock.transect.model.GroupType
+import com.finfrock.transect.model.Observation
+import com.finfrock.transect.model.Sighting
+import com.finfrock.transect.model.WeatherObservation
+import com.finfrock.transect.util.LocationProxyLike
 import com.google.android.gms.maps.model.LatLng
 import java.time.LocalDateTime
 
 class SightingItemAdapter(private val observations: MutableList<Observation>,
                           private val locationProxy: LocationProxyLike
 ): RecyclerView.Adapter<ObservationItemViewHolder>() {
-
+    private val listeners = mutableListOf<(Boolean) -> Unit>()
     fun addNewWeatherObservation() {
         val datetime = LocalDateTime.now()
         locationProxy.getLocation().addOnSuccessListener {
@@ -35,10 +38,15 @@ class SightingItemAdapter(private val observations: MutableList<Observation>,
         locationProxy.getLocation().addOnSuccessListener {
             observations.add(Sighting(
                 datetime = LocalDateTime.now(),
-                location = it
+                location = it,
+                groupType = GroupType.UNKNOWN
             ))
             notifyItemInserted(itemCount -1 )
         }
+    }
+
+    fun onErrorStatusChanged(listener: (Boolean) -> Unit) {
+        listeners.add(listener)
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -53,14 +61,19 @@ class SightingItemAdapter(private val observations: MutableList<Observation>,
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ObservationItemViewHolder {
-        if (viewType == R.layout.sighting_item) {
-            return createSightingViewHolder(parent)
-        }
-        if (viewType == R.layout.weather_item ) {
-            return createWeatherViewHolder(parent)
+        val holder = if (viewType == R.layout.sighting_item) {
+            createSightingViewHolder(parent)
+        } else if (viewType == R.layout.weather_item ) {
+            createWeatherViewHolder(parent)
+        } else {
+            throw Exception("View type $viewType not found")
         }
 
-        throw Exception("View type $viewType not found")
+        holder.onErrorStatusChanged{ status:Boolean ->
+            listeners.forEach{it(status)}
+        }
+
+        return holder
     }
 
     private fun createWeatherViewHolder(parent: ViewGroup): WeatherItemViewHolder {
@@ -85,4 +98,7 @@ class SightingItemAdapter(private val observations: MutableList<Observation>,
 
     override fun getItemCount() = observations.size
 
+}
+interface OnErrorStatusChangeListener {
+    fun onChange(isError: Boolean)
 }

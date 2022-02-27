@@ -15,9 +15,8 @@ import androidx.annotation.IdRes;
 /**
  *
  */
-public class ToggleButtonGroupTableLayout extends TableLayout  implements OnClickListener {
+public class ToggleButtonGroupTableLayout extends TableLayout implements OnClickListener {
 
-    private static final String TAG = "ToggleButtonGroupTableLayout";
     private RadioButton activeRadioButton;
     private RadioGroup.OnCheckedChangeListener mOnCheckedChangeListener;
 
@@ -89,7 +88,6 @@ public class ToggleButtonGroupTableLayout extends TableLayout  implements OnClic
             }
         }
     }
-
 
     /* (non-Javadoc)
      * @see android.widget.TableLayout#addView(android.view.View, android.view.ViewGroup.LayoutParams)

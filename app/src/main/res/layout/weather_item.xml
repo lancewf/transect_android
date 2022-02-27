@@ -38,6 +38,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <AutoCompleteTextView
+                android:id="@+id/beaufort_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none" />
@@ -64,6 +65,7 @@
             app:layout_constraintTop_toBottomOf="@+id/beaufort">
 
             <AutoCompleteTextView
+                android:id="@+id/weather_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none" />

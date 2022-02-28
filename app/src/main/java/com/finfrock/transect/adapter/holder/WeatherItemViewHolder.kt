@@ -3,6 +3,8 @@ package com.finfrock.transect.adapter.holder
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import com.finfrock.transect.R
 import com.finfrock.transect.model.*
@@ -32,7 +34,9 @@ class WeatherItemViewHolder(view: View,
     }
 
     private val beaufort: AutoCompleteTextView = view.findViewById(R.id.beaufort_edit)
+    private val beaufortErrorIcon: ImageView = view.findViewById(R.id.icon_beaufort_error)
     private val weather: AutoCompleteTextView = view.findViewById(R.id.weather_edit)
+    private val weatherErrorIcon: ImageView = view.findViewById(R.id.icon_weather_error)
 
     init {
         val beaufortAdapter =
@@ -50,10 +54,11 @@ class WeatherItemViewHolder(view: View,
                     val index = BEAUFORT_OPTIONS.indexOf(it.toString())
                     if (index >= 0) {
                         obs.beaufort = index
-                        beaufort.error = null
+                        beaufortErrorIcon.visibility = View.INVISIBLE
                     } else {
+                        Toast.makeText(view.context, "beaufort inner set", Toast.LENGTH_SHORT).show()
                         obs.beaufort = null
-                        beaufort.error = "Can not be blank"
+                        beaufortErrorIcon.visibility = View.VISIBLE
                     }
                 }
 
@@ -62,15 +67,16 @@ class WeatherItemViewHolder(view: View,
         }
 
         weather.doAfterTextChanged {
+            Toast.makeText(view.context, "weather $adapterPosition", Toast.LENGTH_SHORT).show()
             observations.updateFromIndex(adapterPosition) { obs ->
                 if (obs is WeatherObservationMutable) {
                     val index = WEATHER_OPTIONS.indexOf(it.toString())
                     if (index >= 0) {
-                        weather.error = null
                         obs.weather = index
+                        weatherErrorIcon.visibility = View.INVISIBLE
                     } else {
-                        weather.error = "Can not be blank"
                         obs.weather = null
+                        weatherErrorIcon.visibility = View.VISIBLE
                     }
                 }
 
@@ -81,20 +87,20 @@ class WeatherItemViewHolder(view: View,
 
     override fun display(obs: ObservationNullable) {
         if (obs is WeatherObservationNullable) {
-            if (obs.beaufort != null && obs.beaufort!! < 7) {
-                beaufort.setText(BEAUFORT_OPTIONS[obs.beaufort!!], false)
-                beaufort.error = null
+            if (obs.beaufort != null && obs.beaufort < 7) {
+                beaufort.setText(BEAUFORT_OPTIONS[obs.beaufort], false)
+                beaufortErrorIcon.visibility = View.INVISIBLE
             } else {
                 beaufort.setText("", false)
-                beaufort.error = "Can not be blank"
+                beaufortErrorIcon.visibility = View.VISIBLE
             }
 
-            if (obs.weather != null && obs.weather!! < 8) {
-                weather.setText(WEATHER_OPTIONS[obs.weather!!], false)
-                weather.error = null
+            if (obs.weather != null && obs.weather < 8) {
+                weather.setText(WEATHER_OPTIONS[obs.weather], false)
+                weatherErrorIcon.visibility = View.INVISIBLE
             } else {
                 weather.setText("", false)
-                weather.error = "Can not be blank"
+                weatherErrorIcon.visibility = View.VISIBLE
             }
         }
     }

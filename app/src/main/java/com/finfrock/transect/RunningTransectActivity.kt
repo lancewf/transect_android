@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.finfrock.transect.adapter.SightingItemAdapter
 import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.Transect
-import com.finfrock.transect.model.Observation
 import com.finfrock.transect.model.ObservationBuilder
 import com.finfrock.transect.util.CountUpTimer
 import com.finfrock.transect.util.LocationProxy
@@ -156,8 +155,8 @@ class RunningTransectActivity : AppCompatActivity() {
 
         sightingAdapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(start: Int, count: Int) {
-                recyclerView.smoothScrollToPosition(start +1)
-                pagerViewer.updatePage(start +1)
+                recyclerView.smoothScrollToPosition(start)
+                pagerViewer.updatePage(start)
             }
         })
 

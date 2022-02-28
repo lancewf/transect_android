@@ -4,7 +4,6 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import com.finfrock.transect.R
 import com.finfrock.transect.model.*
@@ -56,7 +55,6 @@ class WeatherItemViewHolder(view: View,
                         obs.beaufort = index
                         beaufortErrorIcon.visibility = View.INVISIBLE
                     } else {
-                        Toast.makeText(view.context, "beaufort inner set", Toast.LENGTH_SHORT).show()
                         obs.beaufort = null
                         beaufortErrorIcon.visibility = View.VISIBLE
                     }
@@ -67,7 +65,6 @@ class WeatherItemViewHolder(view: View,
         }
 
         weather.doAfterTextChanged {
-            Toast.makeText(view.context, "weather $adapterPosition", Toast.LENGTH_SHORT).show()
             observations.updateFromIndex(adapterPosition) { obs ->
                 if (obs is WeatherObservationMutable) {
                     val index = WEATHER_OPTIONS.indexOf(it.toString())

@@ -67,12 +67,14 @@ object DataSource {
                 endLatLon = LatLng(20.572826, -156.652441),
                 obs = listOf(
                     WeatherObservation(
+                        id = UUID.randomUUID().toString(),
                         datetime = now,
                         location = LatLng(20.780584, -156.504399),
                         beaufort = 1,
                         weather = 1
                     ),
                     Sighting(
+                        id = UUID.randomUUID().toString(),
                         datetime = now.plusMinutes(33),
                         location = LatLng(20.730948, -156.529627),
                         count = 1,
@@ -81,12 +83,14 @@ object DataSource {
                         groupType = GroupType.UNKNOWN
                     ),
                     WeatherObservation(
+                        id = UUID.randomUUID().toString(),
                         datetime = now.plusMinutes(43),
                         location = LatLng(20.711587, -156.536530),
                         beaufort = 1,
                         weather = 1
                     ),
                     Sighting(
+                        id = UUID.randomUUID().toString(),
                         datetime = now.plusMinutes(50),
                         location = LatLng(20.680398, -156.581261),
                         count = 2,
@@ -95,12 +99,14 @@ object DataSource {
                         groupType = GroupType.UNKNOWN
                     ),
                     WeatherObservation(
+                        id = UUID.randomUUID().toString(),
                         datetime = now.plusMinutes(65),
                         location = LatLng(20.652363, -156.568204),
                         beaufort = 1,
                         weather = 1
                     ),
                     Sighting(
+                        id = UUID.randomUUID().toString(),
                         datetime = now.plusMinutes(83),
                         location = LatLng(20.630308, -156.609860),
                         count = 3,

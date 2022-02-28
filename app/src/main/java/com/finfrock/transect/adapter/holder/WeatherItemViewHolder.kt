@@ -45,7 +45,7 @@ class WeatherItemViewHolder(view: View,
         weather.setAdapter(weatherAdapter)
 
         beaufort.doAfterTextChanged {
-            observations.update(adapterPosition) { obs ->
+            observations.updateFromIndex(adapterPosition) { obs ->
                 if (obs is WeatherObservationMutable) {
                     val index = BEAUFORT_OPTIONS.indexOf(it.toString())
                     if (index >= 0) {
@@ -62,7 +62,7 @@ class WeatherItemViewHolder(view: View,
         }
 
         weather.doAfterTextChanged {
-            observations.update(adapterPosition) { obs ->
+            observations.updateFromIndex(adapterPosition) { obs ->
                 if (obs is WeatherObservationMutable) {
                     val index = WEATHER_OPTIONS.indexOf(it.toString())
                     if (index >= 0) {

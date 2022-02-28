@@ -4,6 +4,7 @@ import com.google.android.gms.maps.model.LatLng
 import java.time.LocalDateTime
 
 data class WeatherObservation(
+    override val id: String,
     override val datetime: LocalDateTime,
     override val location: LatLng,
     val beaufort: Int,
@@ -11,6 +12,7 @@ data class WeatherObservation(
 ): Observation
 
 data class WeatherObservationNullable(
+    override val id: String,
     override val datetime: LocalDateTime? = null,
     override val location: LatLng? = null,
     val beaufort: Int? = null,
@@ -18,6 +20,7 @@ data class WeatherObservationNullable(
 ): ObservationNullable
 
 data class WeatherObservationMutable(
+    override val id: String,
     override var datetime: LocalDateTime? = null,
     override var location: LatLng? = null,
     var beaufort: Int? = null,
@@ -34,7 +37,7 @@ data class WeatherObservationMutable(
     override fun toObservation(): Observation? {
         return if (isValid()){
             WeatherObservation(
-                datetime!!, location!!, beaufort!!, weather!!
+                id, datetime!!, location!!, beaufort!!, weather!!
             )
         } else {
             null
@@ -42,11 +45,11 @@ data class WeatherObservationMutable(
     }
 
     override fun toObservationNullable(): ObservationNullable {
-        return WeatherObservationNullable(datetime, location, beaufort, weather)
+        return WeatherObservationNullable(id, datetime, location, beaufort, weather)
     }
 
     override fun clone(): ObservationMutable {
-        return WeatherObservationMutable( datetime, location, beaufort, weather)
+        return WeatherObservationMutable(id, datetime, location, beaufort, weather)
     }
 }
 

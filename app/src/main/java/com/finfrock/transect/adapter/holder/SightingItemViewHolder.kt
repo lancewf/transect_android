@@ -20,7 +20,7 @@ class SightingItemViewHolder(view: View,
     private val groupTypeOptionsErrorIcon: ImageView = view.findViewById(R.id.icon_group_type_error)
 
     init {
-        groupType.setOnCheckedChangeListener { _, id -> observations.update(adapterPosition) { obs ->
+        groupType.setOnCheckedChangeListener { _, id -> observations.updateFromIndex(adapterPosition) { obs ->
                 if (obs is SightingMutable) {
                     when (id) {
                         R.id.option_mc ->
@@ -46,7 +46,7 @@ class SightingItemViewHolder(view: View,
             }
         }
 
-        bearingOptions.setOnCheckedChangeListener { _, id -> observations.update(adapterPosition) { obs ->
+        bearingOptions.setOnCheckedChangeListener { _, id -> observations.updateFromIndex(adapterPosition) { obs ->
                 if (obs is SightingMutable) {
                     when (id) {
                         R.id.option_nine ->
@@ -77,7 +77,7 @@ class SightingItemViewHolder(view: View,
             }
         }
 
-        distanceOptions.setOnCheckedChangeListener { _, id -> observations.update(adapterPosition) { obs ->
+        distanceOptions.setOnCheckedChangeListener { _, id -> observations.updateFromIndex(adapterPosition) { obs ->
                 if (obs is SightingMutable) {
                     when (id) {
                         R.id.option_with_50m ->
@@ -112,7 +112,7 @@ class SightingItemViewHolder(view: View,
             }
         }
 
-        countOptions.setOnCheckedChangeListener { _, id -> observations.update(adapterPosition) { obs ->
+        countOptions.setOnCheckedChangeListener { _, id -> observations.updateFromIndex(adapterPosition) { obs ->
                 if (obs is SightingMutable) {
                     when (id) {
                         R.id.option_one_count ->
@@ -159,7 +159,7 @@ class SightingItemViewHolder(view: View,
                     obs.count in 5..7 -> countOptions.check(R.id.option_five_seven_count)
                     obs.count in 8..10 -> countOptions.check(R.id.option_eight_ten_count)
                     obs.count in 11..13 -> countOptions.check(R.id.option_eleven_thirteen_count)
-                    obs.count!! > 13 -> countOptions.check(R.id.option_greater_thirteen_count)
+                    obs.count > 13 -> countOptions.check(R.id.option_greater_thirteen_count)
                     else -> countOptions.clearCheck()
                 }
                 countOptionsErrorIcon.visibility = View.INVISIBLE
@@ -170,15 +170,15 @@ class SightingItemViewHolder(view: View,
 
             if (obs.distanceKm != null) {
                 when {
-                    obs.distanceKm!! <= 0.06 -> distanceOptions.check(R.id.option_with_50m)
-                    obs.distanceKm!! <= 0.11 -> distanceOptions.check(R.id.option_100m)
-                    obs.distanceKm!! <= 0.21 -> distanceOptions.check(R.id.option_200m)
-                    obs.distanceKm!! <= 0.31 -> distanceOptions.check(R.id.option_300m)
-                    obs.distanceKm!! <= 0.41 -> distanceOptions.check(R.id.option_quarter_mile)
-                    obs.distanceKm!! <= 0.81 -> distanceOptions.check(R.id.option_half_mile)
-                    obs.distanceKm!! <= 1.21 -> distanceOptions.check(R.id.option_three_forth_mile)
-                    obs.distanceKm!! <= 1.61 -> distanceOptions.check(R.id.option_one_mile)
-                    obs.distanceKm!! > 1.61 -> distanceOptions.check(R.id.option_greater_mile)
+                    obs.distanceKm <= 0.06 -> distanceOptions.check(R.id.option_with_50m)
+                    obs.distanceKm <= 0.11 -> distanceOptions.check(R.id.option_100m)
+                    obs.distanceKm <= 0.21 -> distanceOptions.check(R.id.option_200m)
+                    obs.distanceKm <= 0.31 -> distanceOptions.check(R.id.option_300m)
+                    obs.distanceKm <= 0.41 -> distanceOptions.check(R.id.option_quarter_mile)
+                    obs.distanceKm <= 0.81 -> distanceOptions.check(R.id.option_half_mile)
+                    obs.distanceKm <= 1.21 -> distanceOptions.check(R.id.option_three_forth_mile)
+                    obs.distanceKm <= 1.61 -> distanceOptions.check(R.id.option_one_mile)
+                    obs.distanceKm > 1.61 -> distanceOptions.check(R.id.option_greater_mile)
                     else -> distanceOptions.clearCheck()
                 }
                 distanceOptionsErrorIcon.visibility = View.INVISIBLE
@@ -192,7 +192,7 @@ class SightingItemViewHolder(view: View,
                     obs.bearing in 180..321 -> bearingOptions.check(R.id.option_nine)
                     obs.bearing in 322..336 -> bearingOptions.check(R.id.option_10)
                     obs.bearing in 337..351 -> bearingOptions.check(R.id.option_11)
-                    obs.bearing!! > 351 || obs.bearing!! < 7 -> bearingOptions.check(
+                    obs.bearing > 351 || obs.bearing < 7 -> bearingOptions.check(
                         R.id.option_12
                     )
                     obs.bearing in 7..21 -> bearingOptions.check(R.id.option_1)

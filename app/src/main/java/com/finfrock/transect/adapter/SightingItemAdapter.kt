@@ -12,27 +12,19 @@ import com.finfrock.transect.util.LocationProxyLike
 import com.google.android.gms.maps.model.LatLng
 import java.time.LocalDateTime
 
-class SightingItemAdapter(private val observations: ObservationBuilder,
-                          private val locationProxy: LocationProxyLike
+class SightingItemAdapter(private val observations: ObservationBuilder
 ): RecyclerView.Adapter<ObservationItemViewHolder>() {
-    fun addNewWeatherObservation() {
-        val datetime = LocalDateTime.now()
-        locationProxy.getLocation().addOnSuccessListener {
-            addNewWeatherObservation(it, datetime)
-        }
-    }
 
-    fun addNewWeatherObservation(latLng: LatLng, datetime: LocalDateTime) {
-        observations.createNewWeatherObservation(datetime, latLng)
+    fun addNewWeatherObservation(): String {
+        val newObsId = observations.createNewWeatherObservation()
         notifyItemInserted(itemCount -1 )
+        return newObsId
     }
 
-    fun addNewSighting() {
-        val datetime = LocalDateTime.now()
-        locationProxy.getLocation().addOnSuccessListener {
-            observations.createNewSighting( datetime, it)
-            notifyItemInserted(itemCount -1 )
-        }
+    fun addNewSighting(): String {
+        val newObsId = observations.createNewSighting()
+        notifyItemInserted(itemCount -1 )
+        return newObsId
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -78,5 +70,4 @@ class SightingItemAdapter(private val observations: ObservationBuilder,
     }
 
     override fun getItemCount() = observations.size()
-
 }

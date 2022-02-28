@@ -19,6 +19,7 @@ import com.finfrock.transect.model.Observation
 import com.finfrock.transect.model.ObservationBuilder
 import com.finfrock.transect.util.CountUpTimer
 import com.finfrock.transect.util.LocationProxy
+import com.finfrock.transect.util.LocationProxyLike
 import com.finfrock.transect.util.MockLocationProxy
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
@@ -43,6 +44,9 @@ class RunningTransectActivity : AppCompatActivity() {
     private var bearing: Int = -1
     private lateinit var addSightingButton: Button
     private lateinit var addWeatherButton: Button
+    private lateinit var deleteButton: Button
+    private lateinit var locationProxy: LocationProxyLike
+    private var areControlsLockedDown = false
 
     private val requestPermissionLauncher =
         registerForActivityResult(
@@ -92,8 +96,8 @@ class RunningTransectActivity : AppCompatActivity() {
     }
 
     private fun initialize() {
-        val locationProxy = MockLocationProxy()
-//        val locationProxy = LocationProxy(this, LocationServices.getFusedLocationProviderClient(this))
+        locationProxy = MockLocationProxy()
+//        locationProxy = LocationProxy(this, LocationServices.getFusedLocationProviderClient(this))
         val bearingLabel = findViewById<TextView>(R.id.bearingLabel)
         bearingLabel.text = bearing.toString()
 
@@ -108,8 +112,9 @@ class RunningTransectActivity : AppCompatActivity() {
 
         val recyclerView = findViewById<RecyclerView>(R.id.sighting_view)
 
-        val sightingAdapter = SightingItemAdapter(observationBuilder, locationProxy)
-        val sightingLayoutManager = LinearLayoutManager(this@RunningTransectActivity, LinearLayoutManager.HORIZONTAL, false)
+        val sightingAdapter = SightingItemAdapter(observationBuilder)
+        val sightingLayoutManager = LinearLayoutManager(
+            this@RunningTransectActivity, LinearLayoutManager.HORIZONTAL, false)
         recyclerView.apply {
             layoutManager = sightingLayoutManager
             adapter = sightingAdapter
@@ -131,7 +136,7 @@ class RunningTransectActivity : AppCompatActivity() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {}
         })
 
-        val deleteButton = findViewById<Button>(R.id.deleteButton)
+        deleteButton = findViewById(R.id.deleteButton)
         deleteButton.isEnabled = false
         deleteButton.setOnClickListener {
             val selectedIndex = sightingLayoutManager.findFirstVisibleItemPosition()
@@ -146,32 +151,40 @@ class RunningTransectActivity : AppCompatActivity() {
                     else -> pagerViewer.updatePage(0)
                 }
             }
-
-            if (observationBuilder.isEmpty()) {
-                deleteButton.isEnabled = false
-            }
         }
 
         sightingAdapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(start: Int, count: Int) {
                 recyclerView.smoothScrollToPosition(start +1)
                 pagerViewer.updatePage(start +1)
-                if (observationBuilder.nonEmpty()) {
-                    deleteButton.isEnabled = true
-                }
             }
         })
+
         observationBuilder.afterDataChanged {
-            allowNewObservations(observationBuilder.isValid())
+            updateButtons()
         }
 
         addSightingButton = findViewById<Button>(R.id.addSightingButton)
         addSightingButton.setOnClickListener {
-            sightingAdapter.addNewSighting()
+            val newObsId = sightingAdapter.addNewSighting()
+            getLocation{ latLng ->
+                observationBuilder.updateFromId(newObsId){ obs ->
+                    obs.location = latLng
+
+                    obs
+                }
+            }
         }
         addWeatherButton = findViewById<Button>(R.id.addWeatherButton)
         addWeatherButton.setOnClickListener {
-            sightingAdapter.addNewWeatherObservation()
+            val newObsId = sightingAdapter.addNewWeatherObservation()
+            getLocation{ latLng ->
+                observationBuilder.updateFromId(newObsId){ obs ->
+                    obs.location = latLng
+
+                    obs
+                }
+            }
         }
 
         val toolBar = findViewById<MaterialToolbar>(R.id.topAppBar)
@@ -202,16 +215,34 @@ class RunningTransectActivity : AppCompatActivity() {
             }
         }
 
-        locationProxy.getLocation().addOnSuccessListener {
-            startLocation = it
-            sightingAdapter.addNewWeatherObservation(it, LocalDateTime.now())
+        val newObsId = sightingAdapter.addNewWeatherObservation()
+        getLocation{latLng ->
+            startLocation = latLng
+            observationBuilder.updateFromId(newObsId){ obs ->
+                obs.location = latLng
+
+                obs
+            }
         }
-        allowNewObservations(false)
+
+        updateButtons()
     }
 
-    private fun allowNewObservations(allow: Boolean) {
-        addSightingButton.isEnabled = allow
-        addWeatherButton.isEnabled = allow
+    private fun getLocation(after: (latLng: LatLng) -> Unit) {
+        areControlsLockedDown = true
+        updateButtons()
+        locationProxy.getLocation().addOnSuccessListener { latLng ->
+            after(latLng)
+            areControlsLockedDown = false
+            updateButtons()
+        }
+    }
+
+    private fun updateButtons() {
+        val obsIsValid = observationBuilder.isValid()
+        addSightingButton.isEnabled = obsIsValid && !areControlsLockedDown
+        addWeatherButton.isEnabled = obsIsValid && !areControlsLockedDown
+        deleteButton.isEnabled = observationBuilder.nonEmpty() && !areControlsLockedDown
     }
 
     private fun storeTransect(transectStopLatLon: LatLng, transectStopDate: LocalDateTime) {

@@ -2,6 +2,7 @@ package com.finfrock.transect.model
 
 import com.google.android.gms.maps.model.LatLng
 import java.time.LocalDateTime
+import java.util.*
 
 class ObservationBuilder {
     private val sightings = mutableListOf<ObservationMutable>()
@@ -47,27 +48,43 @@ class ObservationBuilder {
 
     // Writeable
 
-    fun update(index: Int, update: (ObservationMutable) -> ObservationMutable) {
+    fun updateFromIndex(index: Int, update: (ObservationMutable) -> ObservationMutable) {
         val updateOb = update(sightings[index].clone())
         sightings[index] = updateOb
         listeners.forEach{it()}
     }
 
-    fun createNewWeatherObservation(datetime: LocalDateTime, latLng: LatLng) {
-        sightings.add(WeatherObservationMutable(
-            datetime = datetime,
-            location = latLng,
-        ))
-        listeners.forEach{it()}
+    fun updateFromId(id: String, update: (ObservationMutable) -> ObservationMutable) {
+        val foundObs = sightings.find{it.id == id}
+        if (foundObs != null) {
+            val updateOb = update(foundObs.clone())
+            val index = sightings.indexOf(foundObs)
+            sightings[index] = updateOb
+            listeners.forEach{it()}
+        }
     }
 
-    fun createNewSighting(datetime: LocalDateTime, latLng: LatLng) {
+    fun createNewWeatherObservation(): String {
+        val id = UUID.randomUUID().toString()
+        sightings.add(WeatherObservationMutable(
+            id,
+            datetime = LocalDateTime.now(),
+        ))
+        listeners.forEach{it()}
+
+        return id
+    }
+
+    fun createNewSighting(): String {
+        val id = UUID.randomUUID().toString()
         sightings.add(SightingMutable(
-            datetime = datetime,
-            location = latLng,
+            id,
+            datetime = LocalDateTime.now(),
             groupType = GroupType.UNKNOWN
         ))
         listeners.forEach{it()}
+
+        return id
     }
 
     fun removeAt(index: Int) {

@@ -7,4 +7,11 @@
         app:showAsAction="never"
         android:title="Stop">
     </item>
+    <item
+        android:id="@+id/location"
+        android:icon="@drawable/ic_baseline_location_searching_24"
+        app:showAsAction="always"
+        android:visible="false"
+        android:title="location">
+    </item>
 </menu>

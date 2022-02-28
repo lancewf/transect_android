@@ -47,6 +47,7 @@ class RunningTransectActivity : AppCompatActivity() {
     private lateinit var deleteButton: Button
     private lateinit var locationProxy: LocationProxyLike
     private var areControlsLockedDown = false
+    private lateinit var toolBar: MaterialToolbar
 
     private val requestPermissionLauncher =
         registerForActivityResult(
@@ -96,8 +97,8 @@ class RunningTransectActivity : AppCompatActivity() {
     }
 
     private fun initialize() {
-        locationProxy = MockLocationProxy()
-//        locationProxy = LocationProxy(this, LocationServices.getFusedLocationProviderClient(this))
+//        locationProxy = MockLocationProxy()
+        locationProxy = LocationProxy(this, LocationServices.getFusedLocationProviderClient(this))
         val bearingLabel = findViewById<TextView>(R.id.bearingLabel)
         bearingLabel.text = bearing.toString()
 
@@ -164,7 +165,7 @@ class RunningTransectActivity : AppCompatActivity() {
             updateButtons()
         }
 
-        addSightingButton = findViewById<Button>(R.id.addSightingButton)
+        addSightingButton = findViewById(R.id.addSightingButton)
         addSightingButton.setOnClickListener {
             val newObsId = sightingAdapter.addNewSighting()
             getLocation{ latLng ->
@@ -175,7 +176,7 @@ class RunningTransectActivity : AppCompatActivity() {
                 }
             }
         }
-        addWeatherButton = findViewById<Button>(R.id.addWeatherButton)
+        addWeatherButton = findViewById(R.id.addWeatherButton)
         addWeatherButton.setOnClickListener {
             val newObsId = sightingAdapter.addNewWeatherObservation()
             getLocation{ latLng ->
@@ -187,7 +188,7 @@ class RunningTransectActivity : AppCompatActivity() {
             }
         }
 
-        val toolBar = findViewById<MaterialToolbar>(R.id.topAppBar)
+        toolBar = findViewById(R.id.topAppBar)
 
         val counter = object: CountUpTimer(1000) {
             override fun onTick(millisUntilFinished: Long) {
@@ -230,10 +231,12 @@ class RunningTransectActivity : AppCompatActivity() {
 
     private fun getLocation(after: (latLng: LatLng) -> Unit) {
         areControlsLockedDown = true
+        toolBar.menu.getItem(1).isVisible = true
         updateButtons()
         locationProxy.getLocation().addOnSuccessListener { latLng ->
             after(latLng)
             areControlsLockedDown = false
+            toolBar.menu.getItem(1).isVisible = false
             updateButtons()
         }
     }

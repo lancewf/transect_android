@@ -11,13 +11,18 @@ import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.VesselSummary
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
+import javax.inject.Inject
 
 class VesselSummaryActivity : AppCompatActivity() {
     companion object {
         const val VESSEL_ID = "vesselId"
     }
 
+    @Inject
+    lateinit var dataSource: DataSource
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        (application as MyApplication).appComponent.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.vessel_summary_activity)
 
@@ -38,14 +43,14 @@ class VesselSummaryActivity : AppCompatActivity() {
 
         val recyclerView = findViewById<RecyclerView>(R.id.single_vessel_view)
 
-        val transects = DataSource.getTransectsWithVesselId(vesselId)
+        val transects = dataSource.getTransectsWithVesselId(vesselId)
 
-        recyclerView.adapter = TransectItemAdapter(this, transects)
+        recyclerView.adapter = TransectItemAdapter(this, transects, dataSource)
         recyclerView.setHasFixedSize(true)
 
     }
 
     private fun getVesselSummary(vesselId: Int): VesselSummary? {
-        return DataSource.loadVesselSummaries().find{ it.id == vesselId}
+        return dataSource.loadVesselSummaries().find{ it.id == vesselId}
     }
 }

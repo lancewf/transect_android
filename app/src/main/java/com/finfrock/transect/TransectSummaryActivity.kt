@@ -18,16 +18,20 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.appbar.MaterialToolbar
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 class TransectSummaryActivity: AppCompatActivity(), OnMapReadyCallback  {
     companion object {
         const val TRANSECT_ID = "transectId"
     }
 
+    @Inject
+    lateinit var dataSource: DataSource
     private val timeFormat = DateTimeFormatter.ofPattern("hh:mm a")
     private lateinit var transect: Transect
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        (application as MyApplication).appComponent.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.transect_summary_activity)
 
@@ -37,7 +41,7 @@ class TransectSummaryActivity: AppCompatActivity(), OnMapReadyCallback  {
             finish()
             return
         }
-        val foundTransect = DataSource.getTransectFromId(transectId)
+        val foundTransect = dataSource.getTransectFromId(transectId)
 
         if (foundTransect == null) {
             Toast.makeText(this, "transect not found id: " + transectId, Toast.LENGTH_SHORT).show()

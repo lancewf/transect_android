@@ -5,8 +5,11 @@ import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.room.Room
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.finfrock.transect.data.AppDatabase
+import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.view.InstructionsPageFragment
 import com.finfrock.transect.view.StartPageFragment
 import com.finfrock.transect.view.SummaryPageFragment
@@ -20,6 +23,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.main_activity)
+
+//        val db = Room.databaseBuilder(
+//            applicationContext,
+//            AppDatabase::class.java, "database-name"
+//        ).build()
+//        DataSource.setAppDatabase(db)
+
         val viewPager: ViewPager2 = findViewById(R.id.pager)
         val tabLayout: TabLayout = findViewById(R.id.tab_layout)
 
@@ -33,7 +43,6 @@ class MainActivity : AppCompatActivity() {
                 else -> "None"
             }
         }.attach()
-
 
         val topAppBar: MaterialToolbar = findViewById(R.id.topAppBar)
 

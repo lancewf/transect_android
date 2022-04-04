@@ -12,6 +12,8 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import androidx.fragment.app.Fragment
+import com.finfrock.transect.MainActivity
+import com.finfrock.transect.MyApplication
 import com.finfrock.transect.R
 import com.finfrock.transect.RunningTransectActivity
 import com.finfrock.transect.data.DataSource
@@ -19,6 +21,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.finfrock.transect.model.Observer
 import com.finfrock.transect.model.VesselSummary
+import javax.inject.Inject
 
 class StartPageFragment : Fragment() {
 
@@ -26,6 +29,8 @@ class StartPageFragment : Fragment() {
     private var selectedObserver1: Observer? = null
     private var selectedObserver2: Observer? = null
     private var bearing: Int? = null
+    @Inject
+    lateinit var dataSource: DataSource
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,11 +38,17 @@ class StartPageFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View = inflater.inflate(R.layout.start_frag, container, false)
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        (activity?.application as MyApplication).appComponent.inject(this)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val vesselLayout: TextInputLayout = requireView().findViewById(R.id.vessel)
-        val vessels = DataSource.loadVesselSummaries()
+        val vessels = dataSource.loadVesselSummaries()
         val vesselAdapter = ArrayAdapter(requireView().context, R.layout.list_item, vessels)
         (vesselLayout.editText as? AutoCompleteTextView)?.setAdapter(vesselAdapter)
         (vesselLayout.editText as? AutoCompleteTextView)?.setOnItemClickListener { parent, _, position, _ ->
@@ -46,7 +57,7 @@ class StartPageFragment : Fragment() {
         }
 
         val observer1Layout: TextInputLayout = requireView().findViewById(R.id.observer1)
-        val observers = DataSource.loadObservers()
+        val observers = dataSource.loadObservers()
         val observerAdapter = ArrayAdapter(requireView().context, R.layout.list_item, observers)
         (observer1Layout.editText as? AutoCompleteTextView)?.setAdapter(observerAdapter)
         (observer1Layout.editText as? AutoCompleteTextView)?.setOnItemClickListener { parent, _, position, _ ->

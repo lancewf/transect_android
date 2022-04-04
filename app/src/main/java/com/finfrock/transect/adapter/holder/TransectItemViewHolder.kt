@@ -8,7 +8,7 @@ import com.finfrock.transect.R
 import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.Transect
 
-class TransectItemViewHolder(view: View): RecyclerView.ViewHolder(view) {
+class TransectItemViewHolder(view: View, val dataSource: DataSource): RecyclerView.ViewHolder(view) {
     private val sightingCountTextView: TextView = view.findViewById(R.id.sightingCount)
     private val observer1NameTextView: TextView = view.findViewById(R.id.observerName1)
     private val observer2NameTextView: TextView = view.findViewById(R.id.observerName2)
@@ -30,7 +30,7 @@ class TransectItemViewHolder(view: View): RecyclerView.ViewHolder(view) {
     }
 
     private fun getObserverName(id: Int?): String {
-        val observers = DataSource.loadObservers()
+        val observers = dataSource.loadObservers()
         val observer = observers.find {
             it.id == id
         }

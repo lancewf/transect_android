@@ -8,9 +8,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.finfrock.transect.R
 import com.finfrock.transect.TransectSummaryActivity
 import com.finfrock.transect.adapter.holder.TransectItemViewHolder
+import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.Transect
 
-class TransectItemAdapter(private val context: Context, private val transects: List<Transect>):
+class TransectItemAdapter(private val context: Context, private val transects: List<Transect>,
+                          val dataSource: DataSource):
     RecyclerView.Adapter<TransectItemViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransectItemViewHolder {
@@ -18,7 +20,7 @@ class TransectItemAdapter(private val context: Context, private val transects: L
             LayoutInflater.from(parent.context).inflate(
                 R.layout.transect_list_item, parent, false)
 
-        val holder = TransectItemViewHolder(adapterLayout)
+        val holder = TransectItemViewHolder(adapterLayout, dataSource)
         holder.setOnClickListener {
             val transect = transects[holder.adapterPosition]
 

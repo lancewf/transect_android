@@ -24,7 +24,9 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.appbar.MaterialToolbar
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.*
+import javax.inject.Inject
 
 class RunningTransectActivity : AppCompatActivity() {
         companion object {
@@ -34,6 +36,8 @@ class RunningTransectActivity : AppCompatActivity() {
             const val BEARING = "bearing"
         }
 
+    @Inject
+    lateinit var dataSource: DataSource
     private val observationBuilder = ObservationBuilder()
     private val transectStart = LocalDateTime.now()
     private lateinit var startLocation: LatLng
@@ -68,6 +72,7 @@ class RunningTransectActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        (application as MyApplication).appComponent.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.running_transect_activity)
 
@@ -248,7 +253,7 @@ class RunningTransectActivity : AppCompatActivity() {
     }
 
     private fun storeTransect(transectStopLatLon: LatLng, transectStopDate: LocalDateTime) {
-        DataSource.addTransect(Transect(
+        dataSource.addTransect(Transect(
             id = UUID.randomUUID().toString(),
             startDate = transectStart,
             endDate = transectStopDate,
@@ -263,7 +268,7 @@ class RunningTransectActivity : AppCompatActivity() {
     }
 
     private fun getObserverName(id: Int?): String {
-        val observers = DataSource.loadObservers()
+        val observers = dataSource.loadObservers()
         val observer = observers.find {
             it.id == id
         }
@@ -271,7 +276,7 @@ class RunningTransectActivity : AppCompatActivity() {
     }
 
     private fun getVesselName(id: Int?): String {
-        val vessels = DataSource.loadVesselSummaries()
+        val vessels = dataSource.loadVesselSummaries()
         val vessel = vessels.find {
             it.id == id
         }

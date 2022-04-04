@@ -253,7 +253,6 @@ class RunningTransectActivity : AppCompatActivity() {
     }
 
     private fun storeTransect(transectStopLatLon: LatLng, transectStopDate: LocalDateTime) {
-//        transectStopDate.atZone(ZoneOffset.UTC).toEpochSecond()
         dataSource.addTransect(Transect(
             id = UUID.randomUUID().toString(),
             startDate = transectStart,

@@ -3,6 +3,8 @@ package com.finfrock.transect.data
 import com.finfrock.transect.model.*
 import com.finfrock.transect.model.Observer
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -15,7 +17,7 @@ class DataSource @Inject constructor(private val appDatabase:AppDatabase) {
     private val transects = mutableListOf<TransectState>()
 
     init {
-        loadFakeData()
+//        loadFakeData()
         loadDatabaseData()
     }
 
@@ -50,10 +52,74 @@ class DataSource @Inject constructor(private val appDatabase:AppDatabase) {
 
     fun addTransect(transect: Transect){
         transects.add(TransectState(transect, true))
+        saveTransect(transect)
     }
 
     private fun saveTransect(transect:Transect) {
-        appDatabase.transectDao().insertTransect()
+        val transectDb: TransectDb = toTransectDb(transect)
+        val observationDbs: List<ObservationDb> = toObservationDbs(transect)
+        runBlocking {
+            launch {
+                appDatabase.transectDao().insertTransect(transectDb)
+                observationDbs.forEach{
+                    appDatabase.observationDao().insertObservation(it)
+                }
+            }
+        }
+    }
+
+    private fun toObservationDbs(transect:Transect): List<ObservationDb> {
+        return transect.obs.mapNotNull { ob ->
+            when (ob) {
+                is Sighting ->
+                    ObservationDb(
+                        id = ob.id,
+                        transectId = transect.id,
+                        type = 0,
+                        datetime = ob.datetime.toEpochSecond(ZoneOffset.UTC).toInt(),
+                        lat = ob.location.latitude,
+                        lon = ob.location.longitude,
+                        count = ob.count,
+                        distanceKm = ob.distanceKm,
+                        bearing = ob.bearing,
+                        groupType = getGroupTypeInt(ob.groupType),
+                        beaufort = 0,
+                        weather = 0
+                    )
+                is WeatherObservation ->
+                    ObservationDb(
+                        id = ob.id,
+                        transectId = transect.id,
+                        type = 1,
+                        datetime = ob.datetime.toEpochSecond(ZoneOffset.UTC).toInt(),
+                        lat = ob.location.latitude,
+                        lon = ob.location.longitude,
+                        count = 0,
+                        distanceKm = 0.0,
+                        bearing = 0,
+                        groupType = 0,
+                        beaufort = ob.beaufort,
+                        weather = ob.weather
+                    )
+                else -> null
+            }
+        }
+    }
+
+    private fun toTransectDb(transect:Transect): TransectDb {
+        return TransectDb(
+            id = transect.id,
+            startDate = transect.startDate.toEpochSecond(ZoneOffset.UTC).toInt(),
+            endDate = transect.endDate.toEpochSecond(ZoneOffset.UTC).toInt(),
+            startLat = transect.startLatLon.latitude,
+            startLon = transect.startLatLon.longitude,
+            endLat = transect.endLatLon.latitude,
+            endLon = transect.endLatLon.longitude,
+            vesselId = transect.vesselId,
+            bearing = transect.bearing,
+            observer1Id = transect.observer1Id,
+            observer2Id = transect.observer2Id
+        )
     }
 
     fun loadObservers(): List<Observer> {
@@ -107,6 +173,15 @@ class DataSource @Inject constructor(private val appDatabase:AppDatabase) {
                   weather = obDb.weather
               )
           }
+        }
+    }
+
+    private fun getGroupTypeInt(groupType: GroupType): Int {
+        return when(groupType) {
+            GroupType.MC -> 0
+            GroupType.MCE -> 1
+            GroupType.CG -> 2
+            else -> 3
         }
     }
 

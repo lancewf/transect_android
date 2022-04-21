@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.finfrock.transect.adapter.SightingItemAdapter
 import com.finfrock.transect.data.DataSource
+import com.finfrock.transect.model.ActiveTransect
 import com.finfrock.transect.model.Transect
 import com.finfrock.transect.model.ObservationBuilder
 import com.finfrock.transect.util.CountUpTimer
@@ -39,18 +40,21 @@ class RunningTransectActivity : AppCompatActivity() {
     @Inject
     lateinit var dataSource: DataSource
     private val observationBuilder = ObservationBuilder()
-    private val transectStart = LocalDateTime.now()
+    private lateinit var transectStart: LocalDateTime
     private lateinit var startLocation: LatLng
     private var vesselId: Int = -1
     private var observer1Id: Int = -1
     private var observer2Id: Int? = null
     private var bearing: Int = -1
+    private lateinit var transectId: String
     private lateinit var addSightingButton: Button
     private lateinit var addWeatherButton: Button
     private lateinit var deleteButton: Button
     private lateinit var locationProxy: LocationProxyLike
     private var areControlsLockedDown = false
     private lateinit var toolBar: MaterialToolbar
+    private lateinit var sightingAdapter: SightingItemAdapter
+    private lateinit var pagerViewer: PagerViewer
 
     private val requestPermissionLauncher =
         registerForActivityResult(
@@ -76,10 +80,24 @@ class RunningTransectActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.running_transect_activity)
 
-        vesselId = intent.extras?.getInt(VESSEL_ID) ?: -1
-        observer1Id = intent.extras?.getInt(OBSERVER1_ID) ?: -1
-        observer2Id = intent.extras?.getInt(OBSERVER2_ID)
-        bearing = intent.extras?.getInt(BEARING) ?: -1
+        if(dataSource.hasActiveTransect()) {
+            val activeTransect = dataSource.getActiveTransect()!!
+            vesselId = activeTransect.vesselId
+            observer1Id = activeTransect.observer1Id
+            observer2Id = activeTransect.observer2Id
+            bearing = activeTransect.bearing
+            transectId = activeTransect.id
+            transectStart = activeTransect.startDate
+            startLocation = activeTransect.startLatLon
+            observationBuilder.setAllObs(activeTransect.obs)
+        } else {
+            vesselId = intent.extras?.getInt(VESSEL_ID) ?: -1
+            observer1Id = intent.extras?.getInt(OBSERVER1_ID) ?: -1
+            observer2Id = intent.extras?.getInt(OBSERVER2_ID)
+            bearing = intent.extras?.getInt(BEARING) ?: -1
+            transectId = UUID.randomUUID().toString()
+            transectStart = LocalDateTime.now()
+        }
 
         checkPermissions()
     }
@@ -103,6 +121,7 @@ class RunningTransectActivity : AppCompatActivity() {
     private fun initialize() {
 //        locationProxy = MockLocationProxy()
         locationProxy = LocationProxy(this, LocationServices.getFusedLocationProviderClient(this))
+
         val bearingLabel = findViewById<TextView>(R.id.bearingLabel)
         bearingLabel.text = bearing.toString()
 
@@ -117,7 +136,7 @@ class RunningTransectActivity : AppCompatActivity() {
 
         val recyclerView = findViewById<RecyclerView>(R.id.sighting_view)
 
-        val sightingAdapter = SightingItemAdapter(observationBuilder)
+        sightingAdapter = SightingItemAdapter(observationBuilder)
         val sightingLayoutManager = LinearLayoutManager(
             this@RunningTransectActivity, LinearLayoutManager.HORIZONTAL, false)
         recyclerView.apply {
@@ -125,7 +144,7 @@ class RunningTransectActivity : AppCompatActivity() {
             adapter = sightingAdapter
         }
         val pagerTextView: TextView = findViewById(R.id.pager_view)
-        val pagerViewer = PagerViewer(pagerTextView) { -> observationBuilder.size() }
+        pagerViewer = PagerViewer(pagerTextView) { -> observationBuilder.size() }
 
         PagerSnapHelper().attachToRecyclerView(recyclerView)
         recyclerView.setHasFixedSize(true)
@@ -145,17 +164,7 @@ class RunningTransectActivity : AppCompatActivity() {
         deleteButton.isEnabled = false
         deleteButton.setOnClickListener {
             val selectedIndex = sightingLayoutManager.findFirstVisibleItemPosition()
-            if (observationBuilder.nonEmpty()) {
-                observationBuilder.removeAt(selectedIndex)
-                sightingAdapter.notifyItemRemoved(selectedIndex)
-
-                when {
-                    selectedIndex > observationBuilder.size() - 1 ->
-                        pagerViewer.updatePage(observationBuilder.size() - 1)
-                    selectedIndex > 0 -> pagerViewer.updatePage(selectedIndex)
-                    else -> pagerViewer.updatePage(0)
-                }
-            }
+            deleteObservation(selectedIndex)
         }
 
         sightingAdapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
@@ -167,36 +176,18 @@ class RunningTransectActivity : AppCompatActivity() {
 
         observationBuilder.afterDataChanged {
             updateButtons()
+            updateDb()
         }
 
         addSightingButton = findViewById(R.id.addSightingButton)
-        addSightingButton.setOnClickListener {
-            val newObsId = sightingAdapter.addNewSighting()
-            getLocation{ latLng ->
-                observationBuilder.updateFromId(newObsId){ obs ->
-                    obs.location = latLng
-
-                    obs
-                }
-            }
-        }
+        addSightingButton.setOnClickListener { addSightingObservation() }
         addWeatherButton = findViewById(R.id.addWeatherButton)
-        addWeatherButton.setOnClickListener {
-            val newObsId = sightingAdapter.addNewWeatherObservation()
-            getLocation{ latLng ->
-                observationBuilder.updateFromId(newObsId){ obs ->
-                    obs.location = latLng
-
-                    obs
-                }
-            }
-        }
+        addWeatherButton.setOnClickListener { addWeatherObservation() }
 
         toolBar = findViewById(R.id.topAppBar)
 
         val counter = object: CountUpTimer(1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                val totalSeconds = millisUntilFinished / 1000
+            override fun onTick(totalSeconds: Long) {
                 val hours = totalSeconds / 3600
                 val minutes = (totalSeconds % 3600) / 60
                 val seconds = totalSeconds % 60
@@ -220,17 +211,74 @@ class RunningTransectActivity : AppCompatActivity() {
             }
         }
 
-        val newObsId = sightingAdapter.addNewWeatherObservation()
-        getLocation{latLng ->
-            startLocation = latLng
+        // Not resuming for previous transect
+        if (observationBuilder.isEmpty()) {
+            addWeatherObservation()
+            counter.start()
+            getLocation{latLng ->
+                startLocation = latLng
+                // Save to active
+                dataSource.startActiveTransect(
+                    ActiveTransect(
+                        id = transectId,
+                        startDate = transectStart,
+                        startLatLon = latLng,
+                        vesselId = vesselId,
+                        bearing = bearing,
+                        observer1Id = observer1Id,
+                        observer2Id = observer2Id,
+                        obs = emptyList(),
+                    )
+                )
+            }
+        } else { // resuming
+            updateButtons()
+            counter.start(getResumedStartTime())
+            recyclerView.smoothScrollToPosition(observationBuilder.size())
+        }
+    }
+
+
+    private fun getResumedStartTime(): Long {
+        val activeTransect = dataSource.getActiveTransect()!!
+        return activeTransect.startDate.toEpochSecond(ZoneOffset.UTC)
+    }
+
+    private fun deleteObservation(selectedIndex: Int) {
+        if (observationBuilder.nonEmpty()) {
+            val deletedOb = observationBuilder.removeAt(selectedIndex)
+            sightingAdapter.notifyItemRemoved(selectedIndex)
+
+            dataSource.deleteObservation(deletedOb.id, transectId)
+            when {
+                selectedIndex > observationBuilder.size() - 1 ->
+                    pagerViewer.updatePage(observationBuilder.size() - 1)
+                selectedIndex > 0 -> pagerViewer.updatePage(selectedIndex)
+                else -> pagerViewer.updatePage(0)
+            }
+        }
+    }
+
+    private fun addSightingObservation() {
+        val newObsId = sightingAdapter.addNewSighting()
+        getLocation{ latLng ->
             observationBuilder.updateFromId(newObsId){ obs ->
                 obs.location = latLng
 
                 obs
             }
         }
+    }
 
-        updateButtons()
+    private fun addWeatherObservation() {
+        val newObsId = sightingAdapter.addNewWeatherObservation()
+        getLocation{ latLng ->
+            observationBuilder.updateFromId(newObsId){ obs ->
+                obs.location = latLng
+
+                obs
+            }
+        }
     }
 
     private fun getLocation(after: (latLng: LatLng) -> Unit) {
@@ -242,6 +290,12 @@ class RunningTransectActivity : AppCompatActivity() {
             areControlsLockedDown = false
             toolBar.menu.getItem(1).isVisible = false
             updateButtons()
+        }
+    }
+
+    private fun updateDb() {
+        if (observationBuilder.isValid() ) {
+           dataSource.upsertObservations(observationBuilder.toList(), transectId)
         }
     }
 
@@ -257,7 +311,7 @@ class RunningTransectActivity : AppCompatActivity() {
             id = UUID.randomUUID().toString(),
             startDate = transectStart,
             endDate = transectStopDate,
-            startLatLon = this.startLocation,
+            startLatLon = startLocation,
             endLatLon = transectStopLatLon,
             obs = observationBuilder.toList(),
             vesselId = vesselId,

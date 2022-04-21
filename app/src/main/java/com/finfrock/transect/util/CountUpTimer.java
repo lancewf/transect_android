@@ -4,6 +4,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+
 public abstract class CountUpTimer {
 
     private final long interval;
@@ -14,18 +17,16 @@ public abstract class CountUpTimer {
     }
 
     public void start() {
-        base = SystemClock.elapsedRealtime();
+        start(secondsSinceEpoch());
+    }
+
+    public void start(long startBase) {
+        base = startBase;
         handler.sendMessage(handler.obtainMessage(MSG));
     }
 
     public void stop() {
         handler.removeMessages(MSG);
-    }
-
-    public void reset() {
-        synchronized (this) {
-            base = SystemClock.elapsedRealtime();
-        }
     }
 
     abstract public void onTick(long elapsedTime);
@@ -36,11 +37,15 @@ public abstract class CountUpTimer {
         @Override
         public void handleMessage(Message msg) {
             synchronized (CountUpTimer.this) {
-                long elapsedTime = SystemClock.elapsedRealtime() - base;
+                long elapsedTime = secondsSinceEpoch() - base;
                 onTick(elapsedTime);
                 sendMessageDelayed(obtainMessage(MSG), interval);
             }
         }
     };
+
+    private Long secondsSinceEpoch(){
+        return LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
+    }
 }
 

@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.finfrock.transect.MainActivity
 import com.finfrock.transect.MyApplication
@@ -36,7 +37,9 @@ class StartPageFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.start_frag, container, false)
+    ): View {
+        return inflater.inflate(R.layout.start_frag, container, false)
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -103,6 +106,7 @@ class StartPageFragment : Fragment() {
         startTransectButton.setOnClickListener {
             startTransectActivity(view.context)
         }
+
     }
 
     private fun startTransectActivity(context: Context) {

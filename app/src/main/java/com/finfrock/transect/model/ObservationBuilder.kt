@@ -48,6 +48,30 @@ class ObservationBuilder {
 
     // Writeable
 
+    fun setAllObs(obs: List<Observation>) {
+        obs.forEach{ob ->
+            if ( ob is Sighting) {
+                sightings.add(SightingMutable(
+                    id = ob.id,
+                    datetime = ob.datetime,
+                    location = ob.location,
+                    count = ob.count,
+                    distanceKm = ob.distanceKm,
+                    bearing = ob.bearing,
+                    groupType = ob.groupType,
+                ))
+            } else if ( ob is WeatherObservation) {
+                sightings.add(WeatherObservationMutable(
+                    id = ob.id,
+                    datetime = ob.datetime,
+                    location = ob.location,
+                    beaufort = ob.beaufort,
+                    weather = ob.weather,
+                ))
+            }
+        }
+    }
+
     fun updateFromIndex(index: Int, update: (ObservationMutable) -> ObservationMutable) {
         val updateOb = update(sightings[index].clone())
         sightings[index] = updateOb
@@ -87,8 +111,9 @@ class ObservationBuilder {
         return id
     }
 
-    fun removeAt(index: Int) {
-        sightings.removeAt(index)
+    fun removeAt(index: Int): ObservationMutable {
+        val ob = sightings.removeAt(index)
         listeners.forEach{it()}
+        return ob
     }
 }

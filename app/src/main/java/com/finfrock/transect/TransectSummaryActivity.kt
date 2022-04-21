@@ -44,7 +44,7 @@ class TransectSummaryActivity: AppCompatActivity(), OnMapReadyCallback  {
         val foundTransect = dataSource.getTransectFromId(transectId)
 
         if (foundTransect == null) {
-            Toast.makeText(this, "transect not found id: " + transectId, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "transect not found id: $transectId", Toast.LENGTH_SHORT).show()
             finish()
             return
         }

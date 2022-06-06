@@ -1,12 +1,16 @@
 package com.finfrock.transect.data
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 
 
 @Dao
 interface ObservationDao {
     @Query("SELECT * FROM observation WHERE transect_id = :transectId")
-    fun getAll(transectId: String): List<ObservationDb>
+    fun getAllLiveData(transectId: String): LiveData<List<ObservationDb>>
+
+    @Query("SELECT * FROM observation WHERE transect_id = :transectId")
+    suspend fun getAll(transectId: String): List<ObservationDb>
 
     /**
      * Insert an object in the database.
@@ -15,7 +19,7 @@ interface ObservationDao {
      * @return The SQLite row id
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertObservation(observation: ObservationDb): Long
+    suspend fun insertObservation(observation: ObservationDb): Long
 
     /**
      * Insert an array of objects in the database.
@@ -24,7 +28,7 @@ interface ObservationDao {
      * @return The SQLite row ids
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertObservations(obj: List<ObservationDb>): List<Long>
+    suspend fun insertObservations(obj: List<ObservationDb>): List<Long>
 
     /**
      * Update an object from the database.
@@ -32,7 +36,7 @@ interface ObservationDao {
      * @param obj the object to be updated
      */
     @Update
-    fun update(obj: ObservationDb?)
+    suspend fun update(obj: ObservationDb?)
 
     /**
      * Update an array of objects from the database.
@@ -40,7 +44,7 @@ interface ObservationDao {
      * @param obj the object to be updated
      */
     @Update
-    fun update(obj: List<ObservationDb?>?)
+    suspend fun update(obj: List<ObservationDb?>?)
 
     /**
      * Delete an object from the database
@@ -48,10 +52,10 @@ interface ObservationDao {
      * @param obj the object to be deleted
      */
     @Query("DELETE FROM observation WHERE id = :obId")
-    fun deleteByObId(obId: String)
+    suspend fun deleteByObId(obId: String)
 
     @Transaction
-    fun upsert(obj: ObservationDb) {
+    suspend fun upsert(obj: ObservationDb) {
         val id: Long = insertObservation(obj)
         if (id == -1L) {
             update(obj)
@@ -59,7 +63,7 @@ interface ObservationDao {
     }
 
     @Transaction
-    fun upsert(objList: List<ObservationDb>) {
+    suspend fun upsert(objList: List<ObservationDb>) {
         val insertResult: List<Long> = insertObservations(objList)
         val updateList: MutableList<ObservationDb> = ArrayList()
         for (i in insertResult.indices) {

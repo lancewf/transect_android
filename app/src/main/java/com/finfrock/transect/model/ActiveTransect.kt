@@ -7,7 +7,6 @@ data class ActiveTransect(
     val id: String,
     val startDate: LocalDateTime,
     val startLatLon: LatLng,
-    val obs: List<Observation>,
     val vesselId: Int,
     val bearing: Int,
     val observer1Id: Int,

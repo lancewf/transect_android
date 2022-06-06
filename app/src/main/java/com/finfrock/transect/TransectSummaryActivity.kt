@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.*
+import com.finfrock.transect.data.AppDatabase
 import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.Observation
 import com.finfrock.transect.model.Sighting
@@ -26,29 +28,27 @@ class TransectSummaryActivity: AppCompatActivity(), OnMapReadyCallback  {
     }
 
     @Inject
+    lateinit var database: AppDatabase
     lateinit var dataSource: DataSource
     private val timeFormat = DateTimeFormatter.ofPattern("hh:mm a")
-    private lateinit var transect: Transect
+    private lateinit var transectWithObservations: LiveData<Pair<Transect?, List<Observation>>>
+    private lateinit var transectId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as MyApplication).appComponent.inject(this)
         super.onCreate(savedInstanceState)
+
+        dataSource = ViewModelProvider(viewModelStore, DataSource.FACTORY(database))
+            .get(DataSource::class.java)
         setContentView(R.layout.transect_summary_activity)
 
-        val transectId = intent.extras?.getString(TRANSECT_ID) ?: ""
+        transectId = intent.extras?.getString(TRANSECT_ID) ?: ""
         if (transectId.isEmpty()) {
             Toast.makeText(this, "transectId not found", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
-        val foundTransect = dataSource.getTransectFromId(transectId)
-
-        if (foundTransect == null) {
-            Toast.makeText(this, "transect not found id: $transectId", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
-        this.transect = foundTransect
+        transectWithObservations = dataSource.getTransectWithObservations(transectId)
 
         val actionBar = findViewById<MaterialToolbar>(R.id.topAppBar)
 
@@ -63,25 +63,37 @@ class TransectSummaryActivity: AppCompatActivity(), OnMapReadyCallback  {
     }
 
     override fun onMapReady(map: GoogleMap) {
-        map.addMarker(createStartMarker())
-        map.addMarker(createEndMarker())
+//        dataSource.backgroundTransectWithObservations(transectId){
+//           transect, observations ->
+        transectWithObservations.observe(this, Observer<Pair<Transect?, List<Observation>>>{
+                (transect, observations) ->
 
-        createObservationMarkers().forEach{ map.addMarker(it) }
+           if(transect != null) {
+               map.clear()
+               map.addMarker(createStartMarker(transect))
+               map.addMarker(createEndMarker(transect))
 
-        map.addPolyline(createPolyline())
+               createObservationMarkers(observations).forEach { map.addMarker(it) }
 
-        val bounds = findLatLngBounds()
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(bounds.center, 11.0f))
+               map.addPolyline(createPolyline(observations, transect))
+
+               val bounds = findLatLngBounds(transect, observations)
+               map.moveCamera(CameraUpdateFactory.newLatLngZoom(bounds.center, 11.0f))
+           } else {
+                Toast.makeText(this, "transect not found", Toast.LENGTH_SHORT).show()
+                finish()
+           }
+        })
     }
 
     // drop the first observation because it overlaps the start location
-    private fun createObservationMarkers():List<MarkerOptions> {
-        return transect.obs.drop(1).map{ createObservationMarker(it) }
+    private fun createObservationMarkers(obs:List<Observation>):List<MarkerOptions> {
+        return obs.drop(1).map{ createObservationMarker(it) }
     }
 
-    private fun createPolyline(): PolylineOptions {
+    private fun createPolyline(obs:List<Observation>, transect: Transect): PolylineOptions {
         // collection lat lng in order
-        val locations = transect.obs.map{it.location}.drop(1) + transect.endLatLon
+        val locations = obs.map{it.location}.drop(1) + transect.endLatLon
 
         val (_, polyline) = locations.fold(Pair(transect.startLatLon, PolylineOptions()))
             { (previous, polyline), current ->
@@ -92,14 +104,14 @@ class TransectSummaryActivity: AppCompatActivity(), OnMapReadyCallback  {
         return polyline
     }
 
-    private fun createStartMarker(): MarkerOptions {
+    private fun createStartMarker(transect: Transect): MarkerOptions {
         return MarkerOptions()
             .position(transect.startLatLon)
             .title(transect.startDate.format(timeFormat))
             .icon(getMarkerIconFromDrawable(R.drawable.ic_baseline_home_24))
     }
 
-    private fun createEndMarker(): MarkerOptions {
+    private fun createEndMarker(transect: Transect): MarkerOptions {
         return MarkerOptions()
             .position(transect.endLatLon)
             .title(transect.endDate.format(timeFormat))
@@ -127,8 +139,8 @@ class TransectSummaryActivity: AppCompatActivity(), OnMapReadyCallback  {
         }
     }
 
-    private fun findLatLngBounds(): LatLngBounds {
-            val locations = transect.obs.map{it.location} + transect.startLatLon + transect.endLatLon
+    private fun findLatLngBounds(transect: Transect, obs:List<Observation>): LatLngBounds {
+            val locations = obs.map{it.location} + transect.startLatLon + transect.endLatLon
 
         val latMax = locations.maxOfOrNull{it.latitude}
         val latMin = locations.minOfOrNull{it.latitude}

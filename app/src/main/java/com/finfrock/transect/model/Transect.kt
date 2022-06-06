@@ -9,7 +9,6 @@ data class Transect(
     val endDate: LocalDateTime,
     val startLatLon: LatLng,
     val endLatLon: LatLng,
-    val obs: List<Observation>,
     val vesselId: Int,
     val bearing: Int,
     val observer1Id: Int,

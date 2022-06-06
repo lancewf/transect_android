@@ -13,10 +13,12 @@ import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.finfrock.transect.MainActivity
 import com.finfrock.transect.MyApplication
 import com.finfrock.transect.R
 import com.finfrock.transect.RunningTransectActivity
+import com.finfrock.transect.data.AppDatabase
 import com.finfrock.transect.data.DataSource
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -31,6 +33,7 @@ class StartPageFragment : Fragment() {
     private var selectedObserver2: Observer? = null
     private var bearing: Int? = null
     @Inject
+    lateinit var database: AppDatabase
     lateinit var dataSource: DataSource
 
     override fun onCreateView(
@@ -45,6 +48,9 @@ class StartPageFragment : Fragment() {
         super.onAttach(context)
 
         (activity?.application as MyApplication).appComponent.inject(this)
+
+        dataSource = ViewModelProvider(viewModelStore, DataSource.FACTORY(database))
+            .get(DataSource::class.java)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

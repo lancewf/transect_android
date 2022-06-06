@@ -1,8 +1,10 @@
 package com.finfrock.transect.data
 
+import androidx.lifecycle.*
 import com.finfrock.transect.model.*
 import com.finfrock.transect.model.Observer
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.time.Instant
@@ -12,15 +14,15 @@ import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-class DataSource @Inject constructor(private val appDatabase:AppDatabase) {
-    private val transects = mutableListOf<TransectState>()
-    private var resumedTransect: ActiveTransect? = null
+class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
 
-    init {
-//        loadFakeData()
-        loadDatabaseData()
-        loadResumedTransect()
+    companion object {
+        /**
+         * Factory for creating [MainViewModel]
+         *
+         * @param arg the repository to pass to [MainViewModel]
+         */
+        val FACTORY = singleArgViewModelFactory(::DataSource)
     }
 
     fun loadVesselSummaries(): List<VesselSummary> {
@@ -40,86 +42,98 @@ class DataSource @Inject constructor(private val appDatabase:AppDatabase) {
         )
     }
 
-    fun getTransectsWithVesselId(vesselId: Int): List<Transect> {
-        return transects.map{it.transect}.filter{it.vesselId == vesselId}
+    fun getTransectsWithVesselId(vesselId: Int): LiveData<List<Transect>> {
+        return getTransects().map{transects -> transects.map{it.transect}.filter{it.vesselId == vesselId}}
     }
 
-    fun getTransectFromId(transectId: String): Transect?  {
-        return transects.map{it.transect}.find{it.id == transectId}
+    fun getTransectFromId(transectId: String): LiveData<Transect?>  {
+        return getTransects().map{transects -> transects.map{it.transect}.find{it.id == transectId}}
     }
 
-    fun getAllTransects(): List<Transect> {
-        return transects.map{ it.transect }
+    fun getTransectWithObservations(transectId: String): LiveData<Pair<Transect?, List<Observation>>> {
+        return getTransectFromId(transectId).switchMap { transect ->
+            appDatabase.observationDao.getAllLiveData(transectId).map { obs ->
+                obs.map { observationDbToObservation(it) }
+                    .sortedBy { it.datetime.toEpochSecond(ZoneOffset.UTC) }
+            }.map{Pair(transect, it)}
+        }
     }
 
     fun addTransect(transect: Transect){
-        transects.add(TransectState(transect, true))
-        saveTransect(transect)
-    }
-
-    fun hasActiveTransect(): Boolean {
-        return resumedTransect != null
-    }
-
-    fun getActiveTransect():ActiveTransect? {
-        return resumedTransect
+        viewModelScope.launch(Dispatchers.IO) {
+            saveTransect(transect)
+        }
     }
 
     fun startActiveTransect(transect:ActiveTransect) {
-        val transectDb: ActiveTransectDb = toActiveTransectDb(transect)
-        runBlocking {
-            launch {
-                appDatabase.activeTransectDao().insertTransect(transectDb)
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            val transectDb: ActiveTransectDb = toActiveTransectDb(transect)
+            appDatabase.activeTransectDao.insertTransect(transectDb)
         }
     }
 
     fun upsertObservations(obs: List<Observation>, transectId: String) {
-        runBlocking {
-            launch {
-                appDatabase.observationDao().upsert(toObservationDbs(obs, transectId))
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            appDatabase.observationDao.upsert(toObservationDbs(obs, transectId))
         }
     }
 
     fun deleteObservation(obId: String, transectId: String) {
-        runBlocking {
-            launch {
-                appDatabase.observationDao().deleteByObId(obId)
+        viewModelScope.launch(Dispatchers.IO) {
+            appDatabase.observationDao.deleteByObId(obId)
+        }
+    }
+
+    fun resumeTransect(callback: (resume:Boolean) -> Unit) {
+        viewModelScope.launch {
+            callback(fetchActiveTransect() != null)
+        }
+    }
+
+    fun backgroundTransectWithObservations(transectId: String, callback: (transect:Transect?, obs:List<Observation>) -> Unit) {
+        viewModelScope.launch {
+            val transect = fetchTransect(transectId)
+
+            val obs = if (transect != null) {
+                fetchObservations(transect.id)
+            } else {
+                emptyList()
             }
+
+            callback(transect, obs)
         }
     }
 
-    private fun loadResumedTransect() {
-        val activeTransect = appDatabase.activeTransectDao().getAll().firstOrNull()
-        if (activeTransect != null) {
-            val obs = fetchObservations(activeTransect.id)
-            resumedTransect = ActiveTransect(
-                id = activeTransect.id,
-                startDate = dbDateToLocalDate(activeTransect.startDate),
-                startLatLon = LatLng(activeTransect.startLat, activeTransect.startLon),
-                obs = obs,
-                vesselId = activeTransect.vesselId,
-                bearing = activeTransect.bearing,
-                observer1Id = activeTransect.observer1Id,
-                observer2Id = activeTransect.observer2Id
-            )
+    fun backgroundGetActiveTransect(callback: (activeTransect:ActiveTransect?, obs:List<Observation>) -> Unit) {
+        viewModelScope.launch {
+            val activeTransect = fetchActiveTransect()
+
+            val obs = if (activeTransect != null) {
+                fetchObservations(activeTransect.id)
+            } else {
+                emptyList()
+            }
+
+            callback(activeTransect, obs)
         }
-//        resumedTransect = fakeResume()
     }
 
-    private fun saveTransect(transect:Transect) {
+    private fun activeTransectDbtoActiveTransect(activeTransect: ActiveTransectDb): ActiveTransect {
+        return ActiveTransect(
+            id = activeTransect.id,
+            startDate = dbDateToLocalDate(activeTransect.startDate),
+            startLatLon = LatLng(activeTransect.startLat, activeTransect.startLon),
+            vesselId = activeTransect.vesselId,
+            bearing = activeTransect.bearing,
+            observer1Id = activeTransect.observer1Id,
+            observer2Id = activeTransect.observer2Id
+        )
+    }
+
+    private suspend fun saveTransect(transect:Transect) {
         val transectDb: TransectDb = toTransectDb(transect)
-        runBlocking {
-            launch {
-                appDatabase.transectDao().insertTransect(transectDb)
-                appDatabase.activeTransectDao().deleteAll()
-            }
-        }
-    }
-
-    private fun toObservationDbs(transect:Transect): List<ObservationDb> {
-       return toObservationDbs(transect.obs, transect.id)
+        appDatabase.transectDao.insertTransect(transectDb)
+        appDatabase.activeTransectDao.deleteAll()
     }
 
     private fun toObservationDbs(obs:List<Observation>, transectId: String): List<ObservationDb> {
@@ -208,48 +222,72 @@ class DataSource @Inject constructor(private val appDatabase:AppDatabase) {
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(epoch.toLong()), ZoneOffset.UTC)
     }
 
-    private fun loadDatabaseData() {
-        val databaseTransects = appDatabase.transectDao().getAll().map{transectDb ->
-            TransectState(
-                Transect(
-                    id = transectDb.id,
-                    startDate =  dbDateToLocalDate(transectDb.startDate),
-                    endDate =  dbDateToLocalDate(transectDb.endDate),
-                    startLatLon = LatLng(transectDb.startLat, transectDb.startLon),
-                    endLatLon = LatLng(transectDb.endLat, transectDb.endLon),
-                    vesselId = transectDb.vesselId,
-                    observer1Id = transectDb.observer1Id,
-                    observer2Id = transectDb.observer2Id,
-                    bearing = transectDb.bearing,
-                    obs = fetchObservations(transectDb.id)
-                ), true
-            )
-        }
-
-        transects.addAll(databaseTransects)
+    private fun transectDbToTransect(transectDb: TransectDb): Transect {
+        return Transect(
+            id = transectDb.id,
+            startDate = dbDateToLocalDate(transectDb.startDate),
+            endDate = dbDateToLocalDate(transectDb.endDate),
+            startLatLon = LatLng(transectDb.startLat, transectDb.startLon),
+            endLatLon = LatLng(transectDb.endLat, transectDb.endLon),
+            vesselId = transectDb.vesselId,
+            observer1Id = transectDb.observer1Id,
+            observer2Id = transectDb.observer2Id,
+            bearing = transectDb.bearing,
+        )
     }
 
-    private fun fetchObservations(transectId: String): List<Observation> {
-        return appDatabase.observationDao().getAll(transectId).map{obDb ->
-          when(obDb.type) {
-              0 -> Sighting(
-                  id = obDb.id,
-                  datetime = dbDateToLocalDate(obDb.datetime),
-                  location = LatLng(obDb.lat, obDb.lon),
-                  count = obDb.count,
-                  distanceKm = obDb.distanceKm,
-                  bearing = obDb.bearing,
-                  groupType = getGroupType(obDb.groupType),
-              )
-              else -> WeatherObservation(
-                  id = obDb.id,
-                  datetime = dbDateToLocalDate(obDb.datetime),
-                  location = LatLng(obDb.lat, obDb.lon),
-                  beaufort = obDb.beaufort,
-                  weather = obDb.weather
-              )
-          }
-        }.sortedBy { ob -> ob.datetime.toEpochSecond(ZoneOffset.UTC) }
+    private fun getTransects(): LiveData<List<TransectState>> {
+        return appDatabase.transectDao.getAll().map{transectDbs ->
+            transectDbs.map { transectDb ->
+                TransectState(transectDbToTransect(transectDb), true)
+            }
+        }
+    }
+
+    private suspend fun fetchTransect(transectId: String): Transect? {
+        val transect = appDatabase.transectDao.getById(transectId).firstOrNull()
+
+        return if (transect != null) {
+            transectDbToTransect(transect)
+        } else {
+            null
+        }
+    }
+
+    private suspend fun fetchActiveTransect(): ActiveTransect? {
+        val transect = appDatabase.activeTransectDao.getFirst().firstOrNull()
+
+        return if (transect != null) {
+            activeTransectDbtoActiveTransect(transect)
+        } else {
+            null
+        }
+    }
+
+    private suspend fun fetchObservations(transectId: String):List<Observation> {
+        return appDatabase.observationDao.getAll(transectId).map{observationDbToObservation(it)}
+            .sortedBy { it.datetime.toEpochSecond(ZoneOffset.UTC) }
+    }
+
+    private fun observationDbToObservation(obDb: ObservationDb): Observation {
+        return when (obDb.type) {
+            0 -> Sighting(
+                id = obDb.id,
+                datetime = dbDateToLocalDate(obDb.datetime),
+                location = LatLng(obDb.lat, obDb.lon),
+                count = obDb.count,
+                distanceKm = obDb.distanceKm,
+                bearing = obDb.bearing,
+                groupType = getGroupType(obDb.groupType),
+            )
+            else -> WeatherObservation(
+                id = obDb.id,
+                datetime = dbDateToLocalDate(obDb.datetime),
+                location = LatLng(obDb.lat, obDb.lon),
+                beaufort = obDb.beaufort,
+                weather = obDb.weather
+            )
+        }
     }
 
     private fun getGroupTypeInt(groupType: GroupType): Int {
@@ -276,7 +314,6 @@ class DataSource @Inject constructor(private val appDatabase:AppDatabase) {
             id = transect.id,
             startDate = transect.startDate,
             startLatLon = transect.startLatLon,
-            obs = transect.obs,
             vesselId = transect.vesselId,
             bearing = transect.bearing,
             observer1Id = transect.observer1Id,
@@ -292,72 +329,31 @@ class DataSource @Inject constructor(private val appDatabase:AppDatabase) {
             endDate = now,
             startLatLon = LatLng(20.780584, -156.504399),
             endLatLon = LatLng(20.572826, -156.652441),
-            obs = listOf(
-                WeatherObservation(
-                    id = UUID.randomUUID().toString(),
-                    datetime = now.minusMinutes(83),
-                    location = LatLng(20.780584, -156.504399),
-                    beaufort = 1,
-                    weather = 1
-                ),
-                Sighting(
-                    id = UUID.randomUUID().toString(),
-                    datetime = now.minusMinutes(65),
-                    location = LatLng(20.730948, -156.529627),
-                    count = 1,
-                    distanceKm = 0.5,
-                    bearing = 0,
-                    groupType = GroupType.UNKNOWN
-                ),
-                WeatherObservation(
-                    id = UUID.randomUUID().toString(),
-                    datetime = now.plusMinutes(50),
-                    location = LatLng(20.711587, -156.536530),
-                    beaufort = 1,
-                    weather = 1
-                ),
-                Sighting(
-                    id = UUID.randomUUID().toString(),
-                    datetime = now.plusMinutes(43),
-                    location = LatLng(20.680398, -156.581261),
-                    count = 2,
-                    distanceKm = 0.5,
-                    bearing = 270,
-                    groupType = GroupType.UNKNOWN
-                ),
-                WeatherObservation(
-                    id = UUID.randomUUID().toString(),
-                    datetime = now.plusMinutes(33),
-                    location = LatLng(20.652363, -156.568204),
-                    beaufort = 1,
-                    weather = 1
-                ),
-                Sighting(
-                    id = UUID.randomUUID().toString(),
-                    datetime = now.plusMinutes(5),
-                    location = LatLng(20.630308, -156.609860),
-                    count = 3,
-                    distanceKm = 0.5,
-                    bearing = 30,
-                    groupType = GroupType.UNKNOWN
-                ),
-            ),
             vesselId = 1, bearing = 90,
             observer1Id = 4, observer2Id = 5
         )
     }
 
-    private fun loadFakeData() {
-        transects.add( TransectState(fakeHawaiiTransect(), true ) )
-
-        transects.add(
+    private fun getFakeTransects(): List<TransectState> {
+        return listOf(
+            TransectState(fakeHawaiiTransect(), true ),
             TransectState(Transect(id = UUID.randomUUID().toString(),
                 startDate = LocalDateTime.now(), endDate = LocalDateTime.now(),
                 startLatLon = LatLng(0.0, 0.0), endLatLon = LatLng(0.0, 0.0),
-                obs = emptyList(),
                 vesselId = 1, bearing = 77,
                 observer1Id = 1, observer2Id = 2
             ), true )
         )
+    }
+}
+fun <T : ViewModel, A> singleArgViewModelFactory(constructor: (A) -> T):
+            (A) -> ViewModelProvider.NewInstanceFactory {
+    return { arg: A ->
+        object : ViewModelProvider.NewInstanceFactory() {
+            @Suppress("UNCHECKED_CAST")
+            override fun <V : ViewModel> create(modelClass: Class<V>): V {
+                return constructor(arg) as V
+            }
+        }
     }
 }

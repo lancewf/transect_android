@@ -8,13 +8,9 @@ import javax.inject.Inject
 
 open class MyApplication: Application() {
 
-    @Inject
-    lateinit var dataSource: DataSource
-
     val appComponent: AppComponent by lazy {
         DaggerAppComponent.factory().create(applicationContext)
     }
-
 
     override fun onCreate() {
         super.onCreate()

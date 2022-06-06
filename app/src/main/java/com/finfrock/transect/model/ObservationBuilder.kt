@@ -1,6 +1,5 @@
 package com.finfrock.transect.model
 
-import com.google.android.gms.maps.model.LatLng
 import java.time.LocalDateTime
 import java.util.*
 
@@ -70,6 +69,7 @@ class ObservationBuilder {
                 ))
             }
         }
+        listeners.forEach{it()}
     }
 
     fun updateFromIndex(index: Int, update: (ObservationMutable) -> ObservationMutable) {

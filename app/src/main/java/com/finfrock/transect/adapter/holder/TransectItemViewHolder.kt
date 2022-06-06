@@ -19,7 +19,7 @@ class TransectItemViewHolder(view: View, val dataSource: DataSource): RecyclerVi
         val observer1Name = getObserverName(transect.observer1Id)
         val observer2Name = getObserverName(transect.observer2Id)
 
-        sightingCountTextView.text = transect.obs.size.toString()
+        sightingCountTextView.text = "77"
         observer1NameTextView.text = observer1Name
         observer2NameTextView.text = observer2Name
         bearingTextView.text = transect.bearing.toString()

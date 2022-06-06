@@ -9,14 +9,17 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.finfrock.transect.adapter.SightingItemAdapter
+import com.finfrock.transect.data.AppDatabase
 import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.ActiveTransect
-import com.finfrock.transect.model.Transect
+import com.finfrock.transect.model.Observation
 import com.finfrock.transect.model.ObservationBuilder
+import com.finfrock.transect.model.Transect
 import com.finfrock.transect.util.CountUpTimer
 import com.finfrock.transect.util.LocationProxy
 import com.finfrock.transect.util.LocationProxyLike
@@ -38,6 +41,7 @@ class RunningTransectActivity : AppCompatActivity() {
         }
 
     @Inject
+    lateinit var database: AppDatabase
     lateinit var dataSource: DataSource
     private val observationBuilder = ObservationBuilder()
     private lateinit var transectStart: LocalDateTime
@@ -55,13 +59,15 @@ class RunningTransectActivity : AppCompatActivity() {
     private lateinit var toolBar: MaterialToolbar
     private lateinit var sightingAdapter: SightingItemAdapter
     private lateinit var pagerViewer: PagerViewer
+    private lateinit var counter: CountUpTimer
+    private var resumedObservations:List<Observation> = emptyList()
 
     private val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { isGranted: Map<String, Boolean> ->
             if (isGranted.all{d -> d.value}) {
-                initialize()
+                postInitialize()
             } else {
                 Toast.makeText(this,
                     "Transect can not be created without location access", Toast.LENGTH_LONG).show()
@@ -78,28 +84,32 @@ class RunningTransectActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as MyApplication).appComponent.inject(this)
         super.onCreate(savedInstanceState)
+        dataSource = ViewModelProvider(viewModelStore, DataSource.FACTORY(database))
+            .get(DataSource::class.java)
         setContentView(R.layout.running_transect_activity)
 
-        if(dataSource.hasActiveTransect()) {
-            val activeTransect = dataSource.getActiveTransect()!!
-            vesselId = activeTransect.vesselId
-            observer1Id = activeTransect.observer1Id
-            observer2Id = activeTransect.observer2Id
-            bearing = activeTransect.bearing
-            transectId = activeTransect.id
-            transectStart = activeTransect.startDate
-            startLocation = activeTransect.startLatLon
-            observationBuilder.setAllObs(activeTransect.obs)
-        } else {
-            vesselId = intent.extras?.getInt(VESSEL_ID) ?: -1
-            observer1Id = intent.extras?.getInt(OBSERVER1_ID) ?: -1
-            observer2Id = intent.extras?.getInt(OBSERVER2_ID)
-            bearing = intent.extras?.getInt(BEARING) ?: -1
-            transectId = UUID.randomUUID().toString()
-            transectStart = LocalDateTime.now()
-        }
+        preInitialize()
+        dataSource.backgroundGetActiveTransect{activeTransect:ActiveTransect?, obs:List<Observation> ->
+            if(activeTransect != null) {
+                vesselId = activeTransect.vesselId
+                observer1Id = activeTransect.observer1Id
+                observer2Id = activeTransect.observer2Id
+                bearing = activeTransect.bearing
+                transectId = activeTransect.id
+                transectStart = activeTransect.startDate
+                startLocation = activeTransect.startLatLon
+                resumedObservations = obs
+            } else {
+                vesselId = intent.extras?.getInt(VESSEL_ID) ?: -1
+                observer1Id = intent.extras?.getInt(OBSERVER1_ID) ?: -1
+                observer2Id = intent.extras?.getInt(OBSERVER2_ID)
+                bearing = intent.extras?.getInt(BEARING) ?: -1
+                transectId = UUID.randomUUID().toString()
+                transectStart = LocalDateTime.now()
+            }
 
-        checkPermissions()
+            checkPermissions()
+        }
     }
 
     private fun checkPermissions() {
@@ -108,7 +118,7 @@ class RunningTransectActivity : AppCompatActivity() {
                     == PackageManager.PERMISSION_GRANTED &&
                     ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED -> {
-                initialize()
+                postInitialize()
             }
             else -> {
                 requestPermissionLauncher.launch(arrayOf(
@@ -118,21 +128,9 @@ class RunningTransectActivity : AppCompatActivity() {
         }
     }
 
-    private fun initialize() {
+    private fun preInitialize() {
 //        locationProxy = MockLocationProxy()
         locationProxy = LocationProxy(this, LocationServices.getFusedLocationProviderClient(this))
-
-        val bearingLabel = findViewById<TextView>(R.id.bearingLabel)
-        bearingLabel.text = bearing.toString()
-
-        val observer1Label = findViewById<TextView>(R.id.observerName1)
-        observer1Label.text = getObserverName(observer1Id)
-
-        val observer2Label = findViewById<TextView>(R.id.observerName2)
-        observer2Label.text = getObserverName(observer2Id)
-
-        val vesselLabel = findViewById<TextView>(R.id.vesselSumName)
-        vesselLabel.text = getVesselName(vesselId)
 
         val recyclerView = findViewById<RecyclerView>(R.id.sighting_view)
 
@@ -144,7 +142,8 @@ class RunningTransectActivity : AppCompatActivity() {
             adapter = sightingAdapter
         }
         val pagerTextView: TextView = findViewById(R.id.pager_view)
-        pagerViewer = PagerViewer(pagerTextView) { -> observationBuilder.size() }
+        pagerViewer =
+            RunningTransectActivity.PagerViewer(pagerTextView) { -> observationBuilder.size() }
 
         PagerSnapHelper().attachToRecyclerView(recyclerView)
         recyclerView.setHasFixedSize(true)
@@ -172,6 +171,13 @@ class RunningTransectActivity : AppCompatActivity() {
                 recyclerView.smoothScrollToPosition(start)
                 pagerViewer.updatePage(start)
             }
+
+            override fun onChanged() {
+                super.onChanged()
+
+                recyclerView.smoothScrollToPosition(observationBuilder.size() - 1)
+                pagerViewer.updatePage(observationBuilder.size() - 1)
+            }
         })
 
         observationBuilder.afterDataChanged {
@@ -186,7 +192,7 @@ class RunningTransectActivity : AppCompatActivity() {
 
         toolBar = findViewById(R.id.topAppBar)
 
-        val counter = object: CountUpTimer(1000) {
+        counter = object: CountUpTimer(1000) {
             override fun onTick(totalSeconds: Long) {
                 val hours = totalSeconds / 3600
                 val minutes = (totalSeconds % 3600) / 60
@@ -194,7 +200,6 @@ class RunningTransectActivity : AppCompatActivity() {
                 toolBar.title = String.format("%02d:%02d:%02d", hours, minutes, seconds)
             }
         }
-        counter.start()
 
         toolBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
@@ -211,8 +216,23 @@ class RunningTransectActivity : AppCompatActivity() {
             }
         }
 
-        // Not resuming for previous transect
-        if (observationBuilder.isEmpty()) {
+    }
+
+    private fun postInitialize() {
+        val bearingLabel = findViewById<TextView>(R.id.bearingLabel)
+        bearingLabel.text = bearing.toString()
+
+        val observer1Label = findViewById<TextView>(R.id.observerName1)
+        observer1Label.text = getObserverName(observer1Id)
+
+        val observer2Label = findViewById<TextView>(R.id.observerName2)
+        observer2Label.text = getObserverName(observer2Id)
+
+        val vesselLabel = findViewById<TextView>(R.id.vesselSumName)
+        vesselLabel.text = getVesselName(vesselId)
+
+        // Not resuming from previous transect
+        if (resumedObservations.isEmpty()) {
             addWeatherObservation()
             counter.start()
             getLocation{latLng ->
@@ -227,21 +247,13 @@ class RunningTransectActivity : AppCompatActivity() {
                         bearing = bearing,
                         observer1Id = observer1Id,
                         observer2Id = observer2Id,
-                        obs = emptyList(),
                     )
                 )
             }
         } else { // resuming
-            updateButtons()
-            counter.start(getResumedStartTime())
-            recyclerView.smoothScrollToPosition(observationBuilder.size())
+            sightingAdapter.addAll(resumedObservations)
+            counter.start(transectStart.toEpochSecond(ZoneOffset.UTC))
         }
-    }
-
-
-    private fun getResumedStartTime(): Long {
-        val activeTransect = dataSource.getActiveTransect()!!
-        return activeTransect.startDate.toEpochSecond(ZoneOffset.UTC)
     }
 
     private fun deleteObservation(selectedIndex: Int) {
@@ -308,12 +320,11 @@ class RunningTransectActivity : AppCompatActivity() {
 
     private fun storeTransect(transectStopLatLon: LatLng, transectStopDate: LocalDateTime) {
         dataSource.addTransect(Transect(
-            id = UUID.randomUUID().toString(),
+            id = transectId,
             startDate = transectStart,
             endDate = transectStopDate,
             startLatLon = startLocation,
             endLatLon = transectStopLatLon,
-            obs = observationBuilder.toList(),
             vesselId = vesselId,
             observer1Id = observer1Id,
             observer2Id = observer2Id,

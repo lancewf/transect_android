@@ -8,11 +8,15 @@ import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.finfrock.transect.data.AppDatabase
 import com.finfrock.transect.data.DataSource
+import com.finfrock.transect.model.ActiveTransect
 import com.finfrock.transect.view.InstructionsPageFragment
 import com.finfrock.transect.view.StartPageFragment
 import com.finfrock.transect.view.SummaryPageFragment
@@ -24,12 +28,14 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
 
     @Inject
+    lateinit var database: AppDatabase
     lateinit var dataSource: DataSource
 
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as MyApplication).appComponent.inject(this)
         super.onCreate(savedInstanceState)
-
+        dataSource = ViewModelProvider(viewModelStore, DataSource.FACTORY(database))
+            .get(DataSource::class.java)
         setContentView(R.layout.main_activity)
 
         val viewPager: ViewPager2 = findViewById(R.id.pager)
@@ -52,15 +58,19 @@ class MainActivity : AppCompatActivity() {
             Log.i("lancewf", "clicked")
         }
 
-        if(dataSource.hasActiveTransect()) {
-            resumeRunningTransectActivity()
+        dataSource.resumeTransect{ hasRunningTransect ->
+            if ( hasRunningTransect ) {
+                resumeRunningTransectActivity()
+            }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        if(dataSource.hasActiveTransect()) {
-            resumeRunningTransectActivity()
+        dataSource.resumeTransect{ hasRunningTransect ->
+           if ( hasRunningTransect ) {
+               resumeRunningTransectActivity()
+           }
         }
     }
     private fun resumeRunningTransectActivity() {

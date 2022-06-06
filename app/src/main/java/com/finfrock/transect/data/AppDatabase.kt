@@ -8,9 +8,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(entities = [TransectDb::class, ObservationDb::class, ActiveTransectDb::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun transectDao(): TransectDao
-    abstract fun observationDao(): ObservationDao
-    abstract fun activeTransectDao(): ActiveTransectDao
+    abstract val transectDao: TransectDao
+    abstract val observationDao: ObservationDao
+    abstract val activeTransectDao: ActiveTransectDao
 
     companion object {
 
@@ -26,9 +26,9 @@ abstract class AppDatabase : RoomDatabase() {
         // Create and pre-populate the database. See this article for more details:
         // https://medium.com/google-developers/7-pro-tips-for-room-fbadea4bfbd1#4785
         private fun buildDatabase(context: Context): AppDatabase {
-            return Room.databaseBuilder(context, AppDatabase::class.java, "database-name")
-                .allowMainThreadQueries()
+            return Room.databaseBuilder(context, AppDatabase::class.java, "transect")
                 .build()
         }
     }
 }
+

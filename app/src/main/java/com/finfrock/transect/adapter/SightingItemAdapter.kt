@@ -27,6 +27,11 @@ class SightingItemAdapter(private val observations: ObservationBuilder
         return newObsId
     }
 
+    fun addAll(newObservations: List<Observation>) {
+        observations.setAllObs(newObservations)
+        notifyDataSetChanged()
+    }
+
     override fun getItemViewType(position: Int): Int {
         if (observations.isSightingAt(position)) {
             return R.layout.sighting_item

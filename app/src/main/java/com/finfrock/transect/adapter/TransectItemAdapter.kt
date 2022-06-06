@@ -11,9 +11,10 @@ import com.finfrock.transect.adapter.holder.TransectItemViewHolder
 import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.Transect
 
-class TransectItemAdapter(private val context: Context, private val transects: List<Transect>,
-                          val dataSource: DataSource):
+class TransectItemAdapter(private val context: Context, val dataSource: DataSource):
     RecyclerView.Adapter<TransectItemViewHolder>() {
+
+    private val transects = mutableListOf<Transect>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransectItemViewHolder {
         val adapterLayout =
@@ -32,6 +33,12 @@ class TransectItemAdapter(private val context: Context, private val transects: L
         }
 
         return holder
+    }
+
+    fun updateTransects(newTransects: List<Transect>) {
+        transects.clear()
+        transects.addAll(newTransects)
+        notifyDataSetChanged()
     }
 
     override fun onBindViewHolder(holder: TransectItemViewHolder, position: Int) {

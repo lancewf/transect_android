@@ -27,22 +27,22 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
 
     fun loadVesselSummaries(): List<VesselSummary> {
         return listOf(
-            VesselSummary(id = 1, name = "Kohola", numberOfSightings = 44, numberOfTransects = 11,
+            VesselSummary(id = "kohola", name = "Kohola", numberOfSightings = 44, numberOfTransects = 11,
                 animalsPerKm = 1.32, totalDistanceTraveledKm = 50.93, totalDuration = "1:35:21"),
-            VesselSummary(id = 2, name = "Ohua", numberOfSightings = 10, numberOfTransects = 4,
+            VesselSummary(id = "ohua", name = "Ohua", numberOfSightings = 10, numberOfTransects = 4,
                 animalsPerKm = 0.5, totalDistanceTraveledKm = 31.93, totalDuration = "1:05:57"),
-            VesselSummary(id = 3, name = "Aloha Kai", numberOfSightings = 44, numberOfTransects = 11,
+            VesselSummary(id = "aloha", name = "Aloha Kai", numberOfSightings = 44, numberOfTransects = 11,
                 animalsPerKm = 1.32, totalDistanceTraveledKm = 50.93, totalDuration = "1:35:21"),
-            VesselSummary(id = 4, name = "CaneFire II", numberOfSightings = 10, numberOfTransects = 4,
+            VesselSummary(id = "canefire", name = "CaneFire II", numberOfSightings = 10, numberOfTransects = 4,
                 animalsPerKm = 0.5, totalDistanceTraveledKm = 31.93, totalDuration = "1:05:57"),
-            VesselSummary(id = 5, name = "Kai Kanani", numberOfSightings = 44, numberOfTransects = 11,
+            VesselSummary(id = "kai", name = "Kai Kanani", numberOfSightings = 44, numberOfTransects = 11,
                 animalsPerKm = 1.32, totalDistanceTraveledKm = 50.93, totalDuration = "1:35:21"),
-            VesselSummary(id = 6, name = "Trilogy V", numberOfSightings = 10, numberOfTransects = 4,
+            VesselSummary(id = "trilogy", name = "Trilogy V", numberOfSightings = 10, numberOfTransects = 4,
                 animalsPerKm = 0.5, totalDistanceTraveledKm = 31.93, totalDuration = "1:05:57")
         )
     }
 
-    fun getTransectsWithVesselId(vesselId: Int): LiveData<List<Transect>> {
+    fun getTransectsWithVesselId(vesselId: String): LiveData<List<Transect>> {
         return getTransects().map{transects -> transects.map{it.transect}.filter{it.vesselId == vesselId}}
     }
 
@@ -210,11 +210,11 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
 
     fun loadObservers(): List<Observer> {
         return listOf(
-            Observer(id = 1, name = "Ed Lyman"),
-            Observer(id = 2, name = "Grant Thompson"),
-            Observer(id = 3, name = "Jason Moore"),
-            Observer(id = 4, name = "Lance"),
-            Observer(id = 5, name = "Rachel Finn"),
+            Observer(id = "ED", name = "Ed Lyman"),
+            Observer(id = "Grant", name = "Grant Thompson"),
+            Observer(id = "Jason", name = "Jason Moore"),
+            Observer(id = "lance", name = "Lance"),
+            Observer(id = "Rachel", name = "Rachel Finn"),
         )
     }
 
@@ -307,45 +307,8 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
            else -> GroupType.UNKNOWN
        }
     }
-
-    private fun fakeResume():ActiveTransect {
-        val transect = fakeHawaiiTransect()
-        return ActiveTransect(
-            id = transect.id,
-            startDate = transect.startDate,
-            startLatLon = transect.startLatLon,
-            vesselId = transect.vesselId,
-            bearing = transect.bearing,
-            observer1Id = transect.observer1Id,
-            observer2Id = transect.observer2Id,
-        )
-    }
-
-    private fun fakeHawaiiTransect():Transect {
-        val now = LocalDateTime.now()
-        return Transect(
-            id = UUID.randomUUID().toString(),
-            startDate = now.minusHours(2),
-            endDate = now,
-            startLatLon = LatLng(20.780584, -156.504399),
-            endLatLon = LatLng(20.572826, -156.652441),
-            vesselId = 1, bearing = 90,
-            observer1Id = 4, observer2Id = 5
-        )
-    }
-
-    private fun getFakeTransects(): List<TransectState> {
-        return listOf(
-            TransectState(fakeHawaiiTransect(), true ),
-            TransectState(Transect(id = UUID.randomUUID().toString(),
-                startDate = LocalDateTime.now(), endDate = LocalDateTime.now(),
-                startLatLon = LatLng(0.0, 0.0), endLatLon = LatLng(0.0, 0.0),
-                vesselId = 1, bearing = 77,
-                observer1Id = 1, observer2Id = 2
-            ), true )
-        )
-    }
 }
+
 fun <T : ViewModel, A> singleArgViewModelFactory(constructor: (A) -> T):
             (A) -> ViewModelProvider.NewInstanceFactory {
     return { arg: A ->

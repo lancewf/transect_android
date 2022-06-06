@@ -32,7 +32,7 @@ class VesselSummaryActivity : AppCompatActivity() {
             .get(DataSource::class.java)
         setContentView(R.layout.vessel_summary_activity)
 
-        val vesselId = intent.extras?.getInt(VESSEL_ID) ?: -1
+        val vesselId = intent.extras?.getString(VESSEL_ID)!!
 
         val actionBar = findViewById<MaterialToolbar>(R.id.topAppBar)
 
@@ -58,7 +58,7 @@ class VesselSummaryActivity : AppCompatActivity() {
         }
     }
 
-    private fun getVesselSummary(vesselId: Int): VesselSummary? {
+    private fun getVesselSummary(vesselId: String): VesselSummary? {
         return dataSource.loadVesselSummaries().find{ it.id == vesselId}
     }
 }

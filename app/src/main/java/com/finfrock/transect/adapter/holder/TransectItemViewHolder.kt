@@ -29,7 +29,7 @@ class TransectItemViewHolder(view: View, val dataSource: DataSource): RecyclerVi
         container.setOnClickListener(listener)
     }
 
-    private fun getObserverName(id: Int?): String {
+    private fun getObserverName(id: String?): String {
         val observers = dataSource.loadObservers()
         val observer = observers.find {
             it.id == id

@@ -10,8 +10,8 @@ data class ActiveTransectDb(
     @ColumnInfo(name = "start_date") val startDate: Int,
     @ColumnInfo(name = "start_lat") val startLat: Double,
     @ColumnInfo(name = "start_lon") val startLon: Double,
-    @ColumnInfo(name = "vessel_id") val vesselId: Int,
+    @ColumnInfo(name = "vessel_id") val vesselId: String,
     @ColumnInfo(name = "bearing") val bearing: Int,
-    @ColumnInfo(name = "observer1_id") val observer1Id: Int,
-    @ColumnInfo(name = "observer2_id") val observer2Id: Int? = null
+    @ColumnInfo(name = "observer1_id") val observer1Id: String,
+    @ColumnInfo(name = "observer2_id") val observer2Id: String? = null
 )

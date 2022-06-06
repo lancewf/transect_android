@@ -46,9 +46,9 @@ class RunningTransectActivity : AppCompatActivity() {
     private val observationBuilder = ObservationBuilder()
     private lateinit var transectStart: LocalDateTime
     private lateinit var startLocation: LatLng
-    private var vesselId: Int = -1
-    private var observer1Id: Int = -1
-    private var observer2Id: Int? = null
+    private var vesselId: String = ""
+    private var observer1Id: String = ""
+    private var observer2Id: String? = null
     private var bearing: Int = -1
     private lateinit var transectId: String
     private lateinit var addSightingButton: Button
@@ -100,9 +100,9 @@ class RunningTransectActivity : AppCompatActivity() {
                 startLocation = activeTransect.startLatLon
                 resumedObservations = obs
             } else {
-                vesselId = intent.extras?.getInt(VESSEL_ID) ?: -1
-                observer1Id = intent.extras?.getInt(OBSERVER1_ID) ?: -1
-                observer2Id = intent.extras?.getInt(OBSERVER2_ID)
+                vesselId = intent.extras?.getString(VESSEL_ID)!!
+                observer1Id = intent.extras?.getString(OBSERVER1_ID)!!
+                observer2Id = intent.extras?.getString(OBSERVER2_ID)
                 bearing = intent.extras?.getInt(BEARING) ?: -1
                 transectId = UUID.randomUUID().toString()
                 transectStart = LocalDateTime.now()
@@ -332,7 +332,7 @@ class RunningTransectActivity : AppCompatActivity() {
         ))
     }
 
-    private fun getObserverName(id: Int?): String {
+    private fun getObserverName(id: String?): String {
         val observers = dataSource.loadObservers()
         val observer = observers.find {
             it.id == id
@@ -340,7 +340,7 @@ class RunningTransectActivity : AppCompatActivity() {
         return observer?.name ?: ""
     }
 
-    private fun getVesselName(id: Int?): String {
+    private fun getVesselName(id: String?): String {
         val vessels = dataSource.loadVesselSummaries()
         val vessel = vessels.find {
             it.id == id

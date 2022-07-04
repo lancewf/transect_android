@@ -11,13 +11,12 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.finfrock.transect.MainActivity
 import com.finfrock.transect.MyApplication
 import com.finfrock.transect.R
 import com.finfrock.transect.RunningTransectActivity
+import com.finfrock.transect.SavingProgressActivity
 import com.finfrock.transect.data.AppDatabase
 import com.finfrock.transect.data.DataSource
 import com.google.android.material.textfield.TextInputEditText

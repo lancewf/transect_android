@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:title="Transect"
-            app:navigationIcon="@drawable/ic_baseline_menu_24"
+            app:menu="@menu/main_menu"
             style="@style/Widget.MaterialComponents.Toolbar.Primary"
             />
 

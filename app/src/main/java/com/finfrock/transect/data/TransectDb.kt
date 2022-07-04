@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "transect")
 data class TransectDb(
     @PrimaryKey val id: String,
+    @ColumnInfo(name = "local_only") val localOnly: Boolean,
     @ColumnInfo(name = "start_date") val startDate: Int,
     @ColumnInfo(name = "end_date") val endDate: Int,
     @ColumnInfo(name = "start_lat") val startLat: Double,

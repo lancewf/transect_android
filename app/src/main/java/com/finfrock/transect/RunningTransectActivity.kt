@@ -1,6 +1,7 @@
 package com.finfrock.transect
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Button
@@ -207,8 +208,11 @@ class RunningTransectActivity : AppCompatActivity() {
                     counter.stop()
                     val transectStopDate = LocalDateTime.now()
                     locationProxy.getLocation().addOnSuccessListener { transectStopLatLon ->
-                        storeTransect(transectStopLatLon, transectStopDate)
-                        finish()
+                        val transect = createFinishedTransect(transectStopLatLon, transectStopDate)
+                        dataSource.addTransect(transect){
+                            startSavingProgressActivity()
+                            finish()
+                        }
                     }
                     true
                 }
@@ -318,8 +322,9 @@ class RunningTransectActivity : AppCompatActivity() {
         deleteButton.isEnabled = observationBuilder.nonEmpty() && !areControlsLockedDown
     }
 
-    private fun storeTransect(transectStopLatLon: LatLng, transectStopDate: LocalDateTime) {
-        dataSource.addTransect(Transect(
+    private fun createFinishedTransect(
+        transectStopLatLon: LatLng, transectStopDate: LocalDateTime): Transect {
+        return Transect(
             id = transectId,
             startDate = transectStart,
             endDate = transectStopDate,
@@ -329,7 +334,13 @@ class RunningTransectActivity : AppCompatActivity() {
             observer1Id = observer1Id,
             observer2Id = observer2Id,
             bearing = bearing
-        ))
+        )
+    }
+
+    private fun startSavingProgressActivity() {
+        val intent = Intent(this, SavingProgressActivity::class.java)
+
+        this.startActivity(intent)
     }
 
     private fun getObserverName(id: String?): String {

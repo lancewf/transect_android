@@ -1,18 +1,24 @@
 package com.finfrock.transect.data
 
+import android.R
+import android.os.Handler
+import android.util.Log
 import androidx.lifecycle.*
+import androidx.lifecycle.Transformations.map
 import com.finfrock.transect.model.*
 import com.finfrock.transect.model.Observer
+import com.finfrock.transect.network.RemoteObservation
+import com.finfrock.transect.network.RemoteTransect
+import com.finfrock.transect.network.TransectApi
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import java.net.UnknownHostException
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
 
@@ -42,11 +48,25 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
         )
     }
 
+    fun getRemoteTransects(): LiveData<String> {
+        val response = MutableLiveData<String>()
+        viewModelScope.launch {
+            try {
+                val transects = TransectApi.retrofitService.getTransects()
+                response.value = "Success: ${transects.size} Remote transects retrieved"
+            } catch (e: Exception) {
+                response.value = "Failure ${e.message}"
+            }
+        }
+
+        return response
+    }
+
     fun getTransectsWithVesselId(vesselId: String): LiveData<List<Transect>> {
         return getTransects().map{transects -> transects.map{it.transect}.filter{it.vesselId == vesselId}}
     }
 
-    fun getTransectFromId(transectId: String): LiveData<Transect?>  {
+    private fun getTransectFromId(transectId: String): LiveData<Transect?>  {
         return getTransects().map{transects -> transects.map{it.transect}.find{it.id == transectId}}
     }
 
@@ -59,9 +79,10 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
         }
     }
 
-    fun addTransect(transect: Transect){
-        viewModelScope.launch(Dispatchers.IO) {
+    fun addTransect(transect: Transect, after: () -> Unit){
+        viewModelScope.launch {
             saveTransect(transect)
+            after()
         }
     }
 
@@ -118,7 +139,7 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
         }
     }
 
-    private fun activeTransectDbtoActiveTransect(activeTransect: ActiveTransectDb): ActiveTransect {
+    private fun activeTransectDbToActiveTransect(activeTransect: ActiveTransectDb): ActiveTransect {
         return ActiveTransect(
             id = activeTransect.id,
             startDate = dbDateToLocalDate(activeTransect.startDate),
@@ -131,9 +152,108 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
     }
 
     private suspend fun saveTransect(transect:Transect) {
-        val transectDb: TransectDb = toTransectDb(transect)
+        val transectDb: TransectDb = toTransectDb(transect, true)
         appDatabase.transectDao.insertTransect(transectDb)
         appDatabase.activeTransectDao.deleteAll()
+    }
+
+    enum class UploadStatus {
+        SAVING, FAILED, COMPLETE
+    }
+
+    fun savaAllRemote():Pair<LiveData<UploadStatus>, LiveData<String>> {
+        val statusText = MutableLiveData("")
+        val status = MutableLiveData(UploadStatus.SAVING)
+        viewModelScope.launch {
+            val transectDbs = appDatabase.transectDao.getAllNonLive().
+                filter { transectDb -> transectDb.localOnly }
+
+            statusText.value = "Starting to save ${transectDbs.size} Transects"
+            val transectPairs = transectDbs.map{ transectDb ->
+                val obs = appDatabase.observationDao.getAll(transectDb.id).
+                    sortedBy { it.datetime }.
+                    map { observationDbToRemoteTransect(it, transectDb.id) }
+
+                Pair(transectToRemoteTransect(transectDb, obs), transectDb)
+            }
+
+            for ((index, transectPair) in transectPairs.withIndex()) {
+                val (remoteTransect, transectDb) = transectPair
+                val errorMessage = saveRemoteAndTest(remoteTransect)
+                if (errorMessage != null) {
+                    statusText.value = "Error saving Transects: $errorMessage"
+                    status.value = UploadStatus.FAILED
+                    break
+                } else {
+                    appDatabase.transectDao.updateLocalOnly(transectDb.id, false)
+                    statusText.value = "Saving ${index + 1} of ${transectPairs.size} Transects"
+                }
+            }
+
+            if (status.value != UploadStatus.FAILED ) {
+                statusText.value = "Finished Saving ${transectPairs.size} Transects"
+                status.value = UploadStatus.COMPLETE
+            }
+        }
+        return Pair(status, statusText)
+    }
+
+    fun hasUnsavedTransects(): LiveData<Boolean> {
+        return appDatabase.transectDao.getAll().map{transectDbs -> transectDbs.any{it.localOnly} }
+    }
+
+    private suspend fun saveRemoteAndTest(remoteTransect: RemoteTransect):String? {
+        try {
+            TransectApi.retrofitService.saveTransect(remoteTransect)
+        } catch (e: UnknownHostException) {
+            return "Internet Not Found"
+        } catch (e: Exception) {
+            return "Sending transect: ${e.message}"
+        }
+
+        try {
+           TransectApi.retrofitService.getTransect(remoteTransect.id)
+        } catch (e: UnknownHostException) {
+            return "Internet Not Found"
+        } catch (e: Exception) {
+            return "Retrieving transect: ${e.message}"
+        }
+
+        return null
+    }
+
+    private fun observationDbToRemoteTransect(obDb: ObservationDb, transectId: String): RemoteObservation {
+        return RemoteObservation(
+           id = obDb.id,
+           transectId =  transectId,
+            obType = obDb.type.toString(),
+            date = obDb.datetime,
+            lat = obDb.lat,
+            lon = obDb.lon,
+            bearing = obDb.bearing,
+            count = obDb.count,
+            distanceKm = obDb.distanceKm,
+            groupType = obDb.groupType.toString(),
+            beaufortType = obDb.beaufort.toString(),
+            weatherType = obDb.weather.toString()
+        )
+    }
+
+    private fun transectToRemoteTransect(transect:TransectDb, obs: List<RemoteObservation>):RemoteTransect {
+        return RemoteTransect(
+           id = transect.id,
+           startDate =  transect.startDate,
+           endDate =  transect.endDate,
+            startLat = transect.startLat,
+            startLon = transect.startLon,
+            endLat = transect.endLon,
+            endLon = transect.endLon,
+            vesselId = transect.vesselId,
+            bearing = transect.bearing,
+            observer1Id = transect.observer1Id,
+            observer2Id = transect.observer2Id,
+            observations = obs
+        )
     }
 
     private fun toObservationDbs(obs:List<Observation>, transectId: String): List<ObservationDb> {
@@ -192,9 +312,10 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
         )
     }
 
-    private fun toTransectDb(transect:Transect): TransectDb {
+    private fun toTransectDb(transect:Transect, localOnly: Boolean): TransectDb {
         return TransectDb(
             id = transect.id,
+            localOnly = localOnly,
             startDate = transect.startDate.toEpochSecond(ZoneOffset.UTC).toInt(),
             endDate = transect.endDate.toEpochSecond(ZoneOffset.UTC).toInt(),
             startLat = transect.startLatLon.latitude,
@@ -239,7 +360,7 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
     private fun getTransects(): LiveData<List<TransectState>> {
         return appDatabase.transectDao.getAll().map{transectDbs ->
             transectDbs.map { transectDb ->
-                TransectState(transectDbToTransect(transectDb), true)
+                TransectState(transectDbToTransect(transectDb), transectDb.localOnly)
             }
         }
     }
@@ -258,7 +379,7 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
         val transect = appDatabase.activeTransectDao.getFirst().firstOrNull()
 
         return if (transect != null) {
-            activeTransectDbtoActiveTransect(transect)
+            activeTransectDbToActiveTransect(transect)
         } else {
             null
         }

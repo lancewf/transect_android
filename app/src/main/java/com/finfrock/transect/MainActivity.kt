@@ -23,6 +23,7 @@ import com.finfrock.transect.view.SummaryPageFragment
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var database: AppDatabase
     lateinit var dataSource: DataSource
+    private lateinit var toolBar: MaterialToolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as MyApplication).appComponent.inject(this)
@@ -52,10 +54,22 @@ class MainActivity : AppCompatActivity() {
             }
         }.attach()
 
-        val topAppBar: MaterialToolbar = findViewById(R.id.topAppBar)
+        toolBar = findViewById(R.id.topAppBar)
 
-        topAppBar.setNavigationOnClickListener {
+        toolBar.setNavigationOnClickListener {
             Log.i("lancewf", "clicked")
+        }
+
+        toolBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.unsaved -> {
+                    val intent = Intent(this, SavingProgressActivity::class.java)
+
+                    this.startActivity(intent)
+                    true
+                }
+                else -> false
+            }
         }
 
         dataSource.resumeTransect{ hasRunningTransect ->
@@ -63,16 +77,11 @@ class MainActivity : AppCompatActivity() {
                 resumeRunningTransectActivity()
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        dataSource.resumeTransect{ hasRunningTransect ->
-           if ( hasRunningTransect ) {
-               resumeRunningTransectActivity()
-           }
+        dataSource.hasUnsavedTransects().observe(this){ hasUnsaved ->
+            toolBar.menu.getItem(0).isVisible = hasUnsaved
         }
     }
+
     private fun resumeRunningTransectActivity() {
         startActivity(Intent(this, RunningTransectActivity::class.java))
     }

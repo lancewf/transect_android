@@ -20,6 +20,7 @@ interface AppComponent {
     fun inject(activity: MyApplication)
 
     fun inject(activity: RunningTransectActivity)
+    fun inject(activity: SavingProgressActivity)
     fun inject(activity: MainActivity)
     fun inject(activity: TransectSummaryActivity)
     fun inject(activity: VesselSummaryActivity)

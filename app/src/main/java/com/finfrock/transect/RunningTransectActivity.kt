@@ -239,7 +239,9 @@ class RunningTransectActivity : AppCompatActivity() {
         }
 
         val vesselLabel = findViewById<TextView>(R.id.vesselSumName)
-        vesselLabel.text = getVesselName(vesselId)
+        dataSource.getVesselName(vesselId).observe(this){
+            vesselLabel.text = it
+        }
 
         // Not resuming from previous transect
         if (resumedObservations.isEmpty()) {
@@ -348,13 +350,4 @@ class RunningTransectActivity : AppCompatActivity() {
 
         this.startActivity(intent)
     }
-
-    private fun getVesselName(id: String?): String {
-        val vessels = dataSource.loadVesselSummaries()
-        val vessel = vessels.find {
-            it.id == id
-        }
-        return vessel?.name ?: ""
-    }
-
 }

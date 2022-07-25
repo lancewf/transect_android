@@ -41,10 +41,10 @@ class VesselSummaryActivity : AppCompatActivity() {
         actionBar.setNavigationOnClickListener {
             finish()
         }
-        val vesselSummary = getVesselSummary(vesselId)
-
-        if (vesselSummary != null) {
-            actionBar.title = vesselSummary.name
+        dataSource.getVesselSummary(vesselId).observe(this){
+            if (it != null) {
+                actionBar.title = it.name
+            }
         }
 
         val recyclerView = findViewById<RecyclerView>(R.id.single_vessel_view)
@@ -56,9 +56,5 @@ class VesselSummaryActivity : AppCompatActivity() {
         dataSource.getTransectsWithVesselId(vesselId).observe(this){ changedTransects ->
             transectItemAdapter.updateTransects(changedTransects)
         }
-    }
-
-    private fun getVesselSummary(vesselId: String): VesselSummary? {
-        return dataSource.loadVesselSummaries().find{ it.id == vesselId}
     }
 }

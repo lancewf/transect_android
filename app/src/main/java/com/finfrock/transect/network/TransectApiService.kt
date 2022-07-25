@@ -30,6 +30,9 @@ interface TransectApiService {
 
     @GET("observer/")
     suspend fun getObservers():List<RemoteObserver>
+
+    @GET("vessel/")
+    suspend fun getVessels():List<RemoteVessel>
 }
 
 object TransectApi {

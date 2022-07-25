@@ -30,11 +30,12 @@ class SummaryPageFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val myDataset = dataSource.loadVesselSummaries()
 
         val recyclerView = requireView().findViewById<RecyclerView>(R.id.vessel_view)
 
-        recyclerView.adapter = VesselSummaryItemAdapter(requireView().context, myDataset)
+        dataSource.getVesselSummaries().observe(viewLifecycleOwner){
+            recyclerView.adapter = VesselSummaryItemAdapter(requireView().context, it)
+        }
         recyclerView.setHasFixedSize(true)
     }
 

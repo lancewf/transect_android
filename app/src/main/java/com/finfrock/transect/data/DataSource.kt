@@ -8,6 +8,7 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.net.UnknownHostException
+import java.nio.file.Files.find
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -43,35 +44,46 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
         }
     }
 
-    fun loadVesselSummaries(): List<VesselSummary> {
-        return listOf(
-            VesselSummary(id = "kohola", name = "Kohola", numberOfSightings = 44, numberOfTransects = 11,
-                animalsPerKm = 1.32, totalDistanceTraveledKm = 50.93, totalDuration = "1:35:21"),
-            VesselSummary(id = "ohua", name = "Ohua", numberOfSightings = 10, numberOfTransects = 4,
-                animalsPerKm = 0.5, totalDistanceTraveledKm = 31.93, totalDuration = "1:05:57"),
-            VesselSummary(id = "aloha", name = "Aloha Kai", numberOfSightings = 44, numberOfTransects = 11,
-                animalsPerKm = 1.32, totalDistanceTraveledKm = 50.93, totalDuration = "1:35:21"),
-            VesselSummary(id = "canefire", name = "CaneFire II", numberOfSightings = 10, numberOfTransects = 4,
-                animalsPerKm = 0.5, totalDistanceTraveledKm = 31.93, totalDuration = "1:05:57"),
-            VesselSummary(id = "kai", name = "Kai Kanani", numberOfSightings = 44, numberOfTransects = 11,
-                animalsPerKm = 1.32, totalDistanceTraveledKm = 50.93, totalDuration = "1:35:21"),
-            VesselSummary(id = "trilogy", name = "Trilogy V", numberOfSightings = 10, numberOfTransects = 4,
-                animalsPerKm = 0.5, totalDistanceTraveledKm = 31.93, totalDuration = "1:05:57")
-        )
+    fun getVesselName(id: String?): LiveData<String> {
+        return getVessels().map { vessels ->
+            val vessel = vessels.find {
+                it.id == id
+            }
+            vessel?.name ?: ""
+        }
     }
 
-    fun getRemoteTransects(): LiveData<String> {
-        val response = MutableLiveData<String>()
-        viewModelScope.launch {
-            try {
-                val transects = TransectApi.retrofitService.getTransects()
-                response.value = "Success: ${transects.size} Remote transects retrieved"
-            } catch (e: Exception) {
-                response.value = "Failure ${e.message}"
+    fun getVessels(): LiveData<List<Vessel>> {
+        return appDatabase.vesselDao.getAll().map{ vesselDbs ->
+            vesselDbs.map{vesselDbToVessel(it)}
+        }
+    }
+
+    fun getVesselSummaries(): LiveData<List<VesselSummary>> {
+        return appDatabase.vesselDao.getAll().map{ vesselDbs ->
+            vesselDbs.map{vesselDbToVesselSummary(it)}
+        }
+    }
+
+    fun getVesselSummary(vesselId: String): LiveData<VesselSummary?> {
+        return appDatabase.vesselDao.getAll().map{ vesselDbs ->  vesselDbs.find{ it.id == vesselId}}.map{
+            if (it != null) {
+                vesselDbToVesselSummary(it)
+            } else {
+                null
             }
         }
+    }
 
-        return response
+    private fun vesselDbToVessel(vesselDb: VesselDb): Vessel {
+        return Vessel(name = vesselDb.name, id = vesselDb.id)
+    }
+
+    private fun vesselDbToVesselSummary(vesselDb: VesselDb): VesselSummary {
+        return VesselSummary(
+            id = vesselDb.id, name = vesselDb.name, numberOfSightings = 44, numberOfTransects = 11,
+            animalsPerKm = 1.32, totalDistanceTraveledKm = 50.93, totalDuration = "1:35:21"
+        )
     }
 
     fun getTransectsWithVesselId(vesselId: String): LiveData<List<Transect>> {

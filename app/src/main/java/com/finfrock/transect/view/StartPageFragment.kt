@@ -57,9 +57,10 @@ class StartPageFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val vesselLayout: TextInputLayout = requireView().findViewById(R.id.vessel)
-        val vessels = dataSource.loadVesselSummaries()
-        val vesselAdapter = ArrayAdapter(requireView().context, R.layout.list_item, vessels)
-        (vesselLayout.editText as? AutoCompleteTextView)?.setAdapter(vesselAdapter)
+        dataSource.getVessels().observe(viewLifecycleOwner){
+            val vesselAdapter = ArrayAdapter(requireView().context, R.layout.list_item, it)
+            (vesselLayout.editText as? AutoCompleteTextView)?.setAdapter(vesselAdapter)
+        }
         (vesselLayout.editText as? AutoCompleteTextView)?.setOnItemClickListener { parent, _, position, _ ->
             selectedVessel = parent.getItemAtPosition(position) as VesselSummary
             checkNewTransectButton()

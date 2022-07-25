@@ -49,7 +49,7 @@ class VesselSummaryActivity : AppCompatActivity() {
 
         val recyclerView = findViewById<RecyclerView>(R.id.single_vessel_view)
 
-        val transectItemAdapter = TransectItemAdapter(this, dataSource)
+        val transectItemAdapter = TransectItemAdapter(this, this, dataSource)
         recyclerView.adapter = transectItemAdapter
         recyclerView.setHasFixedSize(true)
 

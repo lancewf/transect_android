@@ -6,10 +6,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [TransectDb::class, ObservationDb::class, ActiveTransectDb::class], version = 1)
+@Database(entities = [TransectDb::class, ObservationDb::class, ActiveTransectDb::class, ObserverDb::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
     abstract val transectDao: TransectDao
     abstract val observationDao: ObservationDao
+    abstract val observerDao: ObserverDao
     abstract val activeTransectDao: ActiveTransectDao
 
     companion object {

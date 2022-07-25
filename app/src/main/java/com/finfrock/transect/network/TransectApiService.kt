@@ -9,7 +9,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 
-private const val BASE_URL = "http://transect.sjcmmsn.com/"
+private const val BASE_URL = "http://transect.whalecount.com/"
 private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
     .build()
@@ -27,6 +27,9 @@ interface TransectApiService {
 
     @POST("transect/")
     suspend fun saveTransect(@Body transect: RemoteTransect)
+
+    @GET("observer/")
+    suspend fun getObservers():List<RemoteObserver>
 }
 
 object TransectApi {

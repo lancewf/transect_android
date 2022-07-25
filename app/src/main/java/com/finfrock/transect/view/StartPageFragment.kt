@@ -23,6 +23,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.finfrock.transect.model.Observer
 import com.finfrock.transect.model.VesselSummary
+import kotlinx.coroutines.NonDisposableHandle.parent
 import javax.inject.Inject
 
 class StartPageFragment : Fragment() {
@@ -65,21 +66,22 @@ class StartPageFragment : Fragment() {
         }
 
         val observer1Layout: TextInputLayout = requireView().findViewById(R.id.observer1)
-        val observers = dataSource.loadObservers()
-        val observerAdapter = ArrayAdapter(requireView().context, R.layout.list_item, observers)
-        (observer1Layout.editText as? AutoCompleteTextView)?.setAdapter(observerAdapter)
         (observer1Layout.editText as? AutoCompleteTextView)?.setOnItemClickListener { parent, _, position, _ ->
             selectedObserver1 = parent.getItemAtPosition(position) as Observer
             checkNewTransectButton()
         }
 
         val observer2Layout: TextInputLayout = requireView().findViewById(R.id.observer2)
-        (observer2Layout.editText as? AutoCompleteTextView)?.setAdapter(observerAdapter)
         (observer2Layout.editText as? AutoCompleteTextView)?.setOnItemClickListener { parent, _, position, _ ->
             selectedObserver2 = parent.getItemAtPosition(position) as Observer
             checkNewTransectButton()
         }
 
+        dataSource.getObservers().observe(viewLifecycleOwner){observers ->
+            val observerAdapter = ArrayAdapter(requireView().context, R.layout.list_item, observers)
+            (observer1Layout.editText as? AutoCompleteTextView)?.setAdapter(observerAdapter)
+            (observer2Layout.editText as? AutoCompleteTextView)?.setAdapter(observerAdapter)
+        }
         val bearingTextField: TextInputEditText = requireView().findViewById(R.id.bearing_edit_text)
         bearingTextField.isDirty
         bearingTextField.addTextChangedListener(

@@ -1,9 +1,10 @@
 package com.finfrock.transect
 
 import android.app.Application
-import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.di.AppComponent
 import com.finfrock.transect.di.DaggerAppComponent
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 open class MyApplication: Application() {
@@ -12,8 +13,16 @@ open class MyApplication: Application() {
         DaggerAppComponent.factory().create(applicationContext)
     }
 
+    @Inject
+    lateinit var remoteInitializer: RemoteInitializer
+
     override fun onCreate() {
         super.onCreate()
         appComponent.inject(this)
+
+        MainScope().launch {
+            remoteInitializer.remoteInitialLoad()
+        }
     }
+
 }

@@ -1,29 +1,22 @@
 package com.finfrock.transect
 
-import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.room.Room
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.finfrock.transect.data.AppDatabase
 import com.finfrock.transect.data.DataSource
-import com.finfrock.transect.model.ActiveTransect
 import com.finfrock.transect.view.InstructionsPageFragment
 import com.finfrock.transect.view.StartPageFragment
 import com.finfrock.transect.view.SummaryPageFragment
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
@@ -39,7 +32,6 @@ class MainActivity : AppCompatActivity() {
         dataSource = ViewModelProvider(viewModelStore, DataSource.FACTORY(database))
             .get(DataSource::class.java)
         setContentView(R.layout.main_activity)
-
         val viewPager: ViewPager2 = findViewById(R.id.pager)
         val tabLayout: TabLayout = findViewById(R.id.tab_layout)
 

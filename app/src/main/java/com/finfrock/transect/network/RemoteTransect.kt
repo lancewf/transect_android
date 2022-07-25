@@ -31,3 +31,7 @@ data class RemoteTransect(
     @Json(name="observer2_id") val observer2Id: String?,
     val observations: List<RemoteObservation>
 )
+data class RemoteObserver(
+    val id:String,
+    val name: String
+)

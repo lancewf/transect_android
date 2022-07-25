@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.finfrock.transect.R
 import com.finfrock.transect.TransectSummaryActivity
@@ -11,7 +12,9 @@ import com.finfrock.transect.adapter.holder.TransectItemViewHolder
 import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.Transect
 
-class TransectItemAdapter(private val context: Context, val dataSource: DataSource):
+class TransectItemAdapter(private val context: Context,
+                          private val lifecycleOwner: LifecycleOwner,
+                          val dataSource: DataSource):
     RecyclerView.Adapter<TransectItemViewHolder>() {
 
     private val transects = mutableListOf<Transect>()
@@ -21,7 +24,7 @@ class TransectItemAdapter(private val context: Context, val dataSource: DataSour
             LayoutInflater.from(parent.context).inflate(
                 R.layout.transect_list_item, parent, false)
 
-        val holder = TransectItemViewHolder(adapterLayout, dataSource)
+        val holder = TransectItemViewHolder(adapterLayout, lifecycleOwner, dataSource)
         holder.setOnClickListener {
             val transect = transects[holder.adapterPosition]
 

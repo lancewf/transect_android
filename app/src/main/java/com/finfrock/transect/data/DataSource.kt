@@ -1,15 +1,9 @@
 package com.finfrock.transect.data
 
-import android.R
-import android.os.Handler
-import android.util.Log
 import androidx.lifecycle.*
-import androidx.lifecycle.Transformations.map
 import com.finfrock.transect.model.*
 import com.finfrock.transect.model.Observer
-import com.finfrock.transect.network.RemoteObservation
-import com.finfrock.transect.network.RemoteTransect
-import com.finfrock.transect.network.TransectApi
+import com.finfrock.transect.network.*
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,7 +12,6 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
-
 
 class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
 
@@ -29,6 +22,25 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
          * @param arg the repository to pass to [MainViewModel]
          */
         val FACTORY = singleArgViewModelFactory(::DataSource)
+    }
+
+    fun getObservers(): LiveData<List<Observer>> {
+        return appDatabase.observerDao.getAll().map{ observerDbs ->
+            observerDbs.map{observerDbToObserver(it)}
+        }
+    }
+
+    private fun observerDbToObserver(observerDb: ObserverDb): Observer {
+        return Observer(observerDb.id, observerDb.name)
+    }
+
+    fun getObserverName(id: String?): LiveData<String> {
+        return getObservers().map { observers ->
+            val observer = observers.find {
+                it.id == id
+            }
+            observer?.name ?: ""
+        }
     }
 
     fun loadVesselSummaries(): List<VesselSummary> {
@@ -223,20 +235,80 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
     }
 
     private fun observationDbToRemoteTransect(obDb: ObservationDb, transectId: String): RemoteObservation {
-        return RemoteObservation(
-           id = obDb.id,
-           transectId =  transectId,
-            obType = obDb.type.toString(),
-            date = obDb.datetime,
-            lat = obDb.lat,
-            lon = obDb.lon,
-            bearing = obDb.bearing,
-            count = obDb.count,
-            distanceKm = obDb.distanceKm,
-            groupType = obDb.groupType.toString(),
-            beaufortType = obDb.beaufort.toString(),
-            weatherType = obDb.weather.toString()
-        )
+        return if(obDb.type == 0){
+            RemoteObservation(
+                id = obDb.id,
+                transectId =  transectId,
+                obType = observationDbTypeToRemote(obDb),
+                date = obDb.datetime,
+                lat = obDb.lat,
+                lon = obDb.lon,
+                bearing = obDb.bearing,
+                count = obDb.count,
+                distanceKm = obDb.distanceKm,
+                groupType = observationDbGroupTypeToRemote(obDb),
+                beaufortType = null,
+                weatherType = null
+            )
+        } else {
+            RemoteObservation(
+                id = obDb.id,
+                transectId = transectId,
+                obType = observationDbTypeToRemote(obDb),
+                date = obDb.datetime,
+                lat = obDb.lat,
+                lon = obDb.lon,
+                bearing = null,
+                count = null,
+                distanceKm = null,
+                groupType = null,
+                beaufortType = observationDbBeaufortTypeToRemote(obDb),
+                weatherType = observationDbWeatherTypeToRemote(obDb)
+            )
+        }
+    }
+
+    private fun observationDbTypeToRemote(obDb: ObservationDb): String {
+        return when(obDb.type) {
+           0 -> "Sighting"
+           1 -> "Weather"
+           else -> "Not Known"
+        }
+    }
+
+    private fun observationDbBeaufortTypeToRemote(obDb: ObservationDb): String {
+        return when(obDb.beaufort) {
+            0 -> "0_calm"
+            1 -> "1_1-3kts_ripples"
+            2 -> "2_4-6kts_sm_wavelets"
+            3 -> "3_7-10kts_lg_wavelets"
+            4 -> "4_11-16kts_some_wh_caps"
+            5 -> "5_17-21kts_many_wh_caps"
+            else -> ">5"
+        }
+    }
+
+    private fun observationDbWeatherTypeToRemote(obDb: ObservationDb): String {
+        return when(obDb.weather) {
+            0 -> "sunny"
+            1 -> "partly_sunny"
+            2 -> "overcast"
+            3 -> "scattered_showers"
+            4 -> "steady_showers"
+            5 -> "squalls"
+            6 -> "hard_rain"
+            7 -> "haze_vog"
+            else -> "unknown"
+        }
+    }
+
+    private fun observationDbGroupTypeToRemote(obDb: ObservationDb): String {
+        return when(obDb.groupType) {
+            0 -> "MC"
+            1 -> "MCE"
+            2 -> "GC"
+            else -> "Unknown"
+        }
     }
 
     private fun transectToRemoteTransect(transect:TransectDb, obs: List<RemoteObservation>):RemoteTransect {
@@ -256,11 +328,21 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
         )
     }
 
+    private fun getGroupTypeInt(groupType: GroupType): Int {
+        return when(groupType) {
+            GroupType.MC -> 0
+            GroupType.MCE -> 1
+            GroupType.CG -> 2
+            else -> 3
+        }
+    }
+
     private fun toObservationDbs(obs:List<Observation>, transectId: String): List<ObservationDb> {
         return obs.map { ob ->
             toObservationDbs(ob, transectId)
         }
     }
+
     private fun toObservationDbs(ob: Observation, transectId: String): ObservationDb {
         val obDb = when (ob) {
             is Sighting ->
@@ -329,15 +411,6 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
         )
     }
 
-    fun loadObservers(): List<Observer> {
-        return listOf(
-            Observer(id = "ED", name = "Ed Lyman"),
-            Observer(id = "Grant", name = "Grant Thompson"),
-            Observer(id = "Jason", name = "Jason Moore"),
-            Observer(id = "lance", name = "Lance"),
-            Observer(id = "Rachel", name = "Rachel Finn"),
-        )
-    }
 
     private fun dbDateToLocalDate(epoch: Int): LocalDateTime {
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(epoch.toLong()), ZoneOffset.UTC)
@@ -411,14 +484,6 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
         }
     }
 
-    private fun getGroupTypeInt(groupType: GroupType): Int {
-        return when(groupType) {
-            GroupType.MC -> 0
-            GroupType.MCE -> 1
-            GroupType.CG -> 2
-            else -> 3
-        }
-    }
 
     private fun getGroupType(groupTypeId: Int): GroupType {
        return when(groupTypeId) {

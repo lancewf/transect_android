@@ -10,7 +10,9 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.map
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -227,10 +229,14 @@ class RunningTransectActivity : AppCompatActivity() {
         bearingLabel.text = bearing.toString()
 
         val observer1Label = findViewById<TextView>(R.id.observerName1)
-        observer1Label.text = getObserverName(observer1Id)
+        dataSource.getObserverName(observer1Id).observe(this) {
+            observer1Label.text = it
+        }
 
         val observer2Label = findViewById<TextView>(R.id.observerName2)
-        observer2Label.text = getObserverName(observer2Id)
+        dataSource.getObserverName(observer2Id).observe(this) {
+            observer2Label.text = it
+        }
 
         val vesselLabel = findViewById<TextView>(R.id.vesselSumName)
         vesselLabel.text = getVesselName(vesselId)
@@ -341,14 +347,6 @@ class RunningTransectActivity : AppCompatActivity() {
         val intent = Intent(this, SavingProgressActivity::class.java)
 
         this.startActivity(intent)
-    }
-
-    private fun getObserverName(id: String?): String {
-        val observers = dataSource.loadObservers()
-        val observer = observers.find {
-            it.id == id
-        }
-        return observer?.name ?: ""
     }
 
     private fun getVesselName(id: String?): String {

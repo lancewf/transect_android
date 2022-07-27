@@ -6,16 +6,21 @@ import com.finfrock.transect.data.VesselDb
 import com.finfrock.transect.network.RemoteObserver
 import com.finfrock.transect.network.RemoteVessel
 import com.finfrock.transect.network.TransectApi
+import java.net.UnknownHostException
 
 class RemoteInitializer(val appDatabase: AppDatabase) {
 
     suspend fun remoteInitialLoad() {
-        TransectApi.retrofitService.getObservers().map {
-            appDatabase.observerDao.upsert(remoteObserverToObserverDb(it))
-        }
+        try {
+            TransectApi.retrofitService.getObservers().map {
+                appDatabase.observerDao.upsert(remoteObserverToObserverDb(it))
+            }
 
-        TransectApi.retrofitService.getVessels().map {
-            appDatabase.vesselDao.upsert(remoteVesselToVesselDb(it))
+            TransectApi.retrofitService.getVessels().map {
+                appDatabase.vesselDao.upsert(remoteVesselToVesselDb(it))
+            }
+        } catch (e: UnknownHostException) {
+            //No internet. Use the data from the local DB.
         }
     }
 

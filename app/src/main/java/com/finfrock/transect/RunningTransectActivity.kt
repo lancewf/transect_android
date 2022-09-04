@@ -1,6 +1,8 @@
 package com.finfrock.transect
 
 import android.Manifest
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -10,9 +12,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.map
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -21,16 +21,15 @@ import com.finfrock.transect.data.AppDatabase
 import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.*
 import com.finfrock.transect.util.CountUpTimer
-import com.finfrock.transect.util.LocationProxy
 import com.finfrock.transect.util.LocationProxyLike
 import com.finfrock.transect.util.MockLocationProxy
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.appbar.MaterialToolbar
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
 import javax.inject.Inject
+
 
 class RunningTransectActivity : AppCompatActivity() {
         companion object {
@@ -182,8 +181,19 @@ class RunningTransectActivity : AppCompatActivity() {
         deleteButton = findViewById(R.id.deleteButton)
         deleteButton.isEnabled = false
         deleteButton.setOnClickListener {
-            val selectedIndex = sightingLayoutManager.findFirstVisibleItemPosition()
-            deleteObservation(selectedIndex)
+            val alert: AlertDialog.Builder = AlertDialog.Builder( this )
+            alert.setTitle("Warning")
+            alert.setMessage("Confirm Deletion")
+            alert.setPositiveButton("Yes"
+            ) { dialog, _ ->
+                val selectedIndex = sightingLayoutManager.findFirstVisibleItemPosition()
+                deleteObservation(selectedIndex)
+                dialog.dismiss()
+            }
+
+            alert.setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
+
+            alert.show()
         }
 
         sightingAdapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {

@@ -138,7 +138,7 @@
                     android:id="@+id/option_with_50m"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="w/i 50M" />
+                    android:text="w/i 50 M" />
 
                 <RadioButton
                     android:id="@+id/option_100m"

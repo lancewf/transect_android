@@ -19,10 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.finfrock.transect.adapter.SightingItemAdapter
 import com.finfrock.transect.data.AppDatabase
 import com.finfrock.transect.data.DataSource
-import com.finfrock.transect.model.ActiveTransect
-import com.finfrock.transect.model.Observation
-import com.finfrock.transect.model.ObservationBuilder
-import com.finfrock.transect.model.Transect
+import com.finfrock.transect.model.*
 import com.finfrock.transect.util.CountUpTimer
 import com.finfrock.transect.util.LocationProxy
 import com.finfrock.transect.util.LocationProxyLike
@@ -64,6 +61,7 @@ class RunningTransectActivity : AppCompatActivity() {
     private lateinit var pagerViewer: PagerViewer
     private lateinit var counter: CountUpTimer
     private var resumedObservations:List<Observation> = emptyList()
+    private var resumed = false
 
     private val requestPermissionLauncher =
         registerForActivityResult(
@@ -78,9 +76,26 @@ class RunningTransectActivity : AppCompatActivity() {
             }
         }
 
-    class PagerViewer(private val textView: TextView, private val size: () -> Int) {
-        fun updatePage(index: Int) {
-            textView.text = "${index + 1} of ${size()}"
+    class PagerViewer(private val textView: TextView,
+                      private val observationBuilder: ObservationBuilder) {
+        fun updatePage(overallIndex: Int) {
+
+            val label = when {
+                overallIndex < 0 -> ""
+                observationBuilder.isSightingAt(overallIndex) -> {
+                    val size = observationBuilder.getSightingSize()
+                    val sightingIndex = observationBuilder.getSightingIndex(overallIndex)
+                    "Sighting ${sightingIndex + 1} of $size"
+                }
+                observationBuilder.isWeatherAt(overallIndex) -> {
+                    val size = observationBuilder.getWeatherSize()
+                    val weatherIndex = observationBuilder.getWeatherIndex(overallIndex)
+                    "Weather ${weatherIndex  + 1} of $size"
+                }
+                else -> ""
+            }
+
+            textView.text = label
         }
     }
 
@@ -102,6 +117,7 @@ class RunningTransectActivity : AppCompatActivity() {
                 transectStart = activeTransect.startDate
                 startLocation = activeTransect.startLatLon
                 resumedObservations = obs
+                resumed = true
             } else {
                 vesselId = intent.extras?.getString(VESSEL_ID)!!
                 observer1Id = intent.extras?.getString(OBSERVER1_ID)!!
@@ -109,6 +125,7 @@ class RunningTransectActivity : AppCompatActivity() {
                 bearing = intent.extras?.getInt(BEARING) ?: -1
                 transectId = UUID.randomUUID().toString()
                 transectStart = LocalDateTime.now()
+                resumed = false
             }
 
             checkPermissions()
@@ -132,8 +149,8 @@ class RunningTransectActivity : AppCompatActivity() {
     }
 
     private fun preInitialize() {
-        //locationProxy = MockLocationProxy()
-        locationProxy = LocationProxy(this, LocationServices.getFusedLocationProviderClient(this))
+        locationProxy = MockLocationProxy()
+//        locationProxy = LocationProxy(this, LocationServices.getFusedLocationProviderClient(this))
 
         val recyclerView = findViewById<RecyclerView>(R.id.sighting_view)
 
@@ -144,9 +161,8 @@ class RunningTransectActivity : AppCompatActivity() {
             layoutManager = sightingLayoutManager
             adapter = sightingAdapter
         }
-        val pagerTextView: TextView = findViewById(R.id.pager_view)
-        pagerViewer =
-            RunningTransectActivity.PagerViewer(pagerTextView) { -> observationBuilder.size() }
+        val pagerTextView: TextView = findViewById(R.id.active_record_text)
+        pagerViewer = PagerViewer(pagerTextView, observationBuilder)
 
         PagerSnapHelper().attachToRecyclerView(recyclerView)
         recyclerView.setHasFixedSize(true)
@@ -155,7 +171,8 @@ class RunningTransectActivity : AppCompatActivity() {
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == 0) {
-                    pagerViewer.updatePage(sightingLayoutManager.findFirstVisibleItemPosition())
+                    val page = sightingLayoutManager.findFirstVisibleItemPosition()
+                    pagerViewer.updatePage(page)
                 }
             }
 
@@ -177,9 +194,9 @@ class RunningTransectActivity : AppCompatActivity() {
 
             override fun onChanged() {
                 super.onChanged()
-
-                recyclerView.smoothScrollToPosition(observationBuilder.size() - 1)
-                pagerViewer.updatePage(observationBuilder.size() - 1)
+                val page = observationBuilder.size() - 1
+                recyclerView.smoothScrollToPosition(page)
+                pagerViewer.updatePage(page)
             }
         })
 
@@ -193,17 +210,18 @@ class RunningTransectActivity : AppCompatActivity() {
         addWeatherButton = findViewById(R.id.addWeatherButton)
         addWeatherButton.setOnClickListener { addWeatherObservation() }
 
-        toolBar = findViewById(R.id.topAppBar)
 
+        val timerTextView:TextView = findViewById(R.id.timer)
         counter = object: CountUpTimer(1000) {
             override fun onTick(totalSeconds: Long) {
                 val hours = totalSeconds / 3600
                 val minutes = (totalSeconds % 3600) / 60
                 val seconds = totalSeconds % 60
-                toolBar.title = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+                timerTextView.text = String.format("%02d:%02d:%02d", hours, minutes, seconds)
             }
         }
 
+        toolBar = findViewById(R.id.topAppBar)
         toolBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.action_stop -> {
@@ -244,7 +262,7 @@ class RunningTransectActivity : AppCompatActivity() {
         }
 
         // Not resuming from previous transect
-        if (resumedObservations.isEmpty()) {
+        if (!resumed) {
             addWeatherObservation()
             counter.start()
             getLocation{latLng ->
@@ -265,6 +283,9 @@ class RunningTransectActivity : AppCompatActivity() {
         } else { // resuming
             sightingAdapter.addAll(resumedObservations)
             counter.start(transectStart.toEpochSecond(ZoneOffset.UTC))
+            if( resumedObservations.isEmpty() ) {
+                addWeatherObservation()
+            }
         }
     }
 
@@ -275,9 +296,13 @@ class RunningTransectActivity : AppCompatActivity() {
 
             dataSource.deleteObservation(deletedOb.id, transectId)
             when {
-                selectedIndex > observationBuilder.size() - 1 ->
-                    pagerViewer.updatePage(observationBuilder.size() - 1)
-                selectedIndex > 0 -> pagerViewer.updatePage(selectedIndex)
+                selectedIndex > observationBuilder.size() - 1 -> {
+                    val page = observationBuilder.size() - 1
+                    pagerViewer.updatePage(page)
+                }
+                selectedIndex > 0 -> {
+                    pagerViewer.updatePage(selectedIndex)
+                }
                 else -> pagerViewer.updatePage(0)
             }
         }

@@ -28,8 +28,11 @@ class SightingItemAdapter(private val observations: ObservationBuilder
     }
 
     fun addAll(newObservations: List<Observation>) {
-        observations.setAllObs(newObservations)
-        notifyDataSetChanged()
+        if( newObservations.isNotEmpty()) {
+            observations.setAllObs(newObservations)
+
+            notifyDataSetChanged()
+        }
     }
 
     override fun getItemViewType(position: Int): Int {

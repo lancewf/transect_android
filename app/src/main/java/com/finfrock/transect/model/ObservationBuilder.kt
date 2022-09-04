@@ -29,6 +29,22 @@ class ObservationBuilder {
         return sightings[index] is SightingMutable
     }
 
+    fun getSightingSize(): Int {
+        return sightings.count { it is SightingMutable}
+    }
+
+    fun getSightingIndex(index: Int): Int {
+       return sightings.filterIsInstance<SightingMutable>().indexOf(sightings[index])
+    }
+
+    fun getWeatherIndex(index: Int): Int {
+        return sightings.filterIsInstance<WeatherObservationMutable>().indexOf(sightings[index])
+    }
+
+    fun getWeatherSize(): Int {
+        return sightings.count { it is WeatherObservationMutable}
+    }
+
     fun isWeatherAt(index: Int): Boolean {
         return sightings[index] is WeatherObservationMutable
     }

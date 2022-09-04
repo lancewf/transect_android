@@ -22,13 +22,14 @@ import com.finfrock.transect.data.DataSource
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.finfrock.transect.model.Observer
+import com.finfrock.transect.model.Vessel
 import com.finfrock.transect.model.VesselSummary
 import kotlinx.coroutines.NonDisposableHandle.parent
 import javax.inject.Inject
 
 class StartPageFragment : Fragment() {
 
-    private var selectedVessel: VesselSummary? = null
+    private var selectedVessel: Vessel? = null
     private var selectedObserver1: Observer? = null
     private var selectedObserver2: Observer? = null
     private var bearing: Int? = null
@@ -62,7 +63,7 @@ class StartPageFragment : Fragment() {
             (vesselLayout.editText as? AutoCompleteTextView)?.setAdapter(vesselAdapter)
         }
         (vesselLayout.editText as? AutoCompleteTextView)?.setOnItemClickListener { parent, _, position, _ ->
-            selectedVessel = parent.getItemAtPosition(position) as VesselSummary
+            selectedVessel = parent.getItemAtPosition(position) as Vessel
             checkNewTransectButton()
         }
 

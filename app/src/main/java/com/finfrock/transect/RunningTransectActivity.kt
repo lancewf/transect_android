@@ -21,8 +21,10 @@ import com.finfrock.transect.data.AppDatabase
 import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.*
 import com.finfrock.transect.util.CountUpTimer
+import com.finfrock.transect.util.LocationProxy
 import com.finfrock.transect.util.LocationProxyLike
 import com.finfrock.transect.util.MockLocationProxy
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.appbar.MaterialToolbar
 import java.time.LocalDateTime
@@ -148,8 +150,8 @@ class RunningTransectActivity : AppCompatActivity() {
     }
 
     private fun preInitialize() {
-        locationProxy = MockLocationProxy()
-//        locationProxy = LocationProxy(this, LocationServices.getFusedLocationProviderClient(this))
+//        locationProxy = MockLocationProxy()
+        locationProxy = LocationProxy(this, LocationServices.getFusedLocationProviderClient(this))
 
         val recyclerView = findViewById<RecyclerView>(R.id.sighting_view)
 

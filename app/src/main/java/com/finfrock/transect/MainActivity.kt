@@ -26,6 +26,15 @@ class MainActivity : AppCompatActivity() {
     lateinit var dataSource: DataSource
     private lateinit var toolBar: MaterialToolbar
 
+    override fun onResume() {
+        super.onResume()
+        dataSource.resumeTransect{ hasRunningTransect ->
+            if ( hasRunningTransect ) {
+                resumeRunningTransectActivity()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as MyApplication).appComponent.inject(this)
         super.onCreate(savedInstanceState)

@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModelStore
 import com.finfrock.transect.RemoteInitializer
 import com.finfrock.transect.data.AppDatabase
 import com.finfrock.transect.data.DataSource
+import com.finfrock.transect.network.TransectApi
+import com.finfrock.transect.network.TransectApiService
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -21,7 +23,14 @@ class StorageModule {
 
     @Singleton
     @Provides
-    fun providesRemoteInitializer(appDatabase: AppDatabase): RemoteInitializer {
-        return RemoteInitializer(appDatabase)
+    fun providesRemoteInitializer(appDatabase: AppDatabase,
+                                  transectApiService: TransectApiService): RemoteInitializer {
+        return RemoteInitializer(appDatabase, transectApiService)
+    }
+
+    @Singleton
+    @Provides
+    fun providesTransectApiService(context: Context): TransectApiService {
+        return TransectApi.build(context)
     }
 }

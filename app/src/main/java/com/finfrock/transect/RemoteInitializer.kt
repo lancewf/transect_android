@@ -6,17 +6,18 @@ import com.finfrock.transect.data.VesselDb
 import com.finfrock.transect.network.RemoteObserver
 import com.finfrock.transect.network.RemoteVessel
 import com.finfrock.transect.network.TransectApi
+import com.finfrock.transect.network.TransectApiService
 import java.net.UnknownHostException
 
-class RemoteInitializer(val appDatabase: AppDatabase) {
+class RemoteInitializer(val appDatabase: AppDatabase, val transectApiService: TransectApiService) {
 
     suspend fun remoteInitialLoad() {
         try {
-            TransectApi.retrofitService.getObservers().map {
+            transectApiService.getObservers().map {
                 appDatabase.observerDao.upsert(remoteObserverToObserverDb(it))
             }
 
-            TransectApi.retrofitService.getVessels().map {
+            transectApiService.getVessels().map {
                 appDatabase.vesselDao.upsert(remoteVesselToVesselDb(it))
             }
         } catch (e: UnknownHostException) {

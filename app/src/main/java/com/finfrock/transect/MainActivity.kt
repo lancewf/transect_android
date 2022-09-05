@@ -1,9 +1,12 @@
 package com.finfrock.transect
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.startActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
@@ -11,6 +14,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.finfrock.transect.data.AppDatabase
 import com.finfrock.transect.data.DataSource
+import com.finfrock.transect.network.TransectApiService
 import com.finfrock.transect.view.InstructionsPageFragment
 import com.finfrock.transect.view.StartPageFragment
 import com.finfrock.transect.view.SummaryPageFragment
@@ -19,10 +23,13 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import javax.inject.Inject
 
+
 class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var database: AppDatabase
+    @Inject
+    lateinit var transectApiService: TransectApiService
     lateinit var dataSource: DataSource
     private lateinit var toolBar: MaterialToolbar
 
@@ -38,7 +45,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as MyApplication).appComponent.inject(this)
         super.onCreate(savedInstanceState)
-        dataSource = ViewModelProvider(viewModelStore, DataSource.FACTORY(database))
+        dataSource = ViewModelProvider(viewModelStore, DataSource.FACTORY(database, transectApiService))
             .get(DataSource::class.java)
         setContentView(R.layout.main_activity)
         val viewPager: ViewPager2 = findViewById(R.id.pager)

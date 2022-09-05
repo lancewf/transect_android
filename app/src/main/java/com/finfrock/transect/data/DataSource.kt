@@ -14,7 +14,8 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
 
-class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
+class DataSource (private val appDatabase:AppDatabase,
+                  private val transectApiService: TransectApiService) : ViewModel() {
 
     companion object {
         /**
@@ -22,7 +23,7 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
          *
          * @param arg the repository to pass to [MainViewModel]
          */
-        val FACTORY = singleArgViewModelFactory(::DataSource)
+        val FACTORY = twoArgViewModelFactory(::DataSource)
     }
 
     fun getObservers(): LiveData<List<Observer>> {
@@ -228,7 +229,7 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
 
     private suspend fun saveRemoteAndTest(remoteTransect: RemoteTransect):String? {
         try {
-            TransectApi.retrofitService.saveTransect(remoteTransect)
+            transectApiService.saveTransect(remoteTransect)
         } catch (e: UnknownHostException) {
             return "Internet Not Found"
         } catch (e: Exception) {
@@ -236,7 +237,7 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
         }
 
         try {
-           TransectApi.retrofitService.getTransect(remoteTransect.id)
+            transectApiService.getTransect(remoteTransect.id)
         } catch (e: UnknownHostException) {
             return "Internet Not Found"
         } catch (e: Exception) {
@@ -507,13 +508,13 @@ class DataSource (private val appDatabase:AppDatabase) : ViewModel() {
     }
 }
 
-fun <T : ViewModel, A> singleArgViewModelFactory(constructor: (A) -> T):
-            (A) -> ViewModelProvider.NewInstanceFactory {
-    return { arg: A ->
+fun <T : ViewModel, A, B> twoArgViewModelFactory(constructor: (A, B) -> T):
+            (A, B) -> ViewModelProvider.NewInstanceFactory {
+    return { a: A, b: B ->
         object : ViewModelProvider.NewInstanceFactory() {
             @Suppress("UNCHECKED_CAST")
             override fun <V : ViewModel> create(modelClass: Class<V>): V {
-                return constructor(arg) as V
+                return constructor(a, b) as V
             }
         }
     }

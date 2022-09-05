@@ -20,6 +20,7 @@ import com.finfrock.transect.adapter.SightingItemAdapter
 import com.finfrock.transect.data.AppDatabase
 import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.*
+import com.finfrock.transect.network.TransectApiService
 import com.finfrock.transect.util.CountUpTimer
 import com.finfrock.transect.util.LocationProxy
 import com.finfrock.transect.util.LocationProxyLike
@@ -43,6 +44,10 @@ class RunningTransectActivity : AppCompatActivity() {
 
     @Inject
     lateinit var database: AppDatabase
+
+    @Inject
+    lateinit var transectApiService: TransectApiService
+
     lateinit var dataSource: DataSource
     private val observationBuilder = ObservationBuilder()
     private lateinit var transectStart: LocalDateTime
@@ -103,7 +108,7 @@ class RunningTransectActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as MyApplication).appComponent.inject(this)
         super.onCreate(savedInstanceState)
-        dataSource = ViewModelProvider(viewModelStore, DataSource.FACTORY(database))
+        dataSource = ViewModelProvider(viewModelStore, DataSource.FACTORY(database, transectApiService))
             .get(DataSource::class.java)
         setContentView(R.layout.running_transect_activity)
 

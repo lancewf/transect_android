@@ -13,6 +13,7 @@ import com.finfrock.transect.model.Observation
 import com.finfrock.transect.model.Sighting
 import com.finfrock.transect.model.Transect
 import com.finfrock.transect.model.WeatherObservation
+import com.finfrock.transect.network.TransectApiService
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -29,6 +30,9 @@ class TransectSummaryActivity: AppCompatActivity(), OnMapReadyCallback  {
 
     @Inject
     lateinit var database: AppDatabase
+
+    @Inject
+    lateinit var transectApiService: TransectApiService
     lateinit var dataSource: DataSource
     private val timeFormat = DateTimeFormatter.ofPattern("hh:mm a")
     private lateinit var transectWithObservations: LiveData<Pair<Transect?, List<Observation>>>
@@ -38,7 +42,7 @@ class TransectSummaryActivity: AppCompatActivity(), OnMapReadyCallback  {
         (application as MyApplication).appComponent.inject(this)
         super.onCreate(savedInstanceState)
 
-        dataSource = ViewModelProvider(viewModelStore, DataSource.FACTORY(database))
+        dataSource = ViewModelProvider(viewModelStore, DataSource.FACTORY(database, transectApiService))
             .get(DataSource::class.java)
         setContentView(R.layout.transect_summary_activity)
 

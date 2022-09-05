@@ -24,6 +24,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.finfrock.transect.model.Observer
 import com.finfrock.transect.model.Vessel
 import com.finfrock.transect.model.VesselSummary
+import com.finfrock.transect.network.TransectApiService
 import kotlinx.coroutines.NonDisposableHandle.parent
 import javax.inject.Inject
 
@@ -35,6 +36,9 @@ class StartPageFragment : Fragment() {
     private var bearing: Int? = null
     @Inject
     lateinit var database: AppDatabase
+
+    @Inject
+    lateinit var transectApiService: TransectApiService
     lateinit var dataSource: DataSource
 
     override fun onCreateView(
@@ -50,7 +54,7 @@ class StartPageFragment : Fragment() {
 
         (activity?.application as MyApplication).appComponent.inject(this)
 
-        dataSource = ViewModelProvider(viewModelStore, DataSource.FACTORY(database))
+        dataSource = ViewModelProvider(viewModelStore, DataSource.FACTORY(database, transectApiService))
             .get(DataSource::class.java)
     }
 

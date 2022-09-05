@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.finfrock.transect.data.AppDatabase
 import com.finfrock.transect.data.DataSource
+import com.finfrock.transect.network.TransectApiService
 import com.google.android.material.appbar.MaterialToolbar
 import kotlinx.android.synthetic.main.saving_progress_activity.*
 import javax.inject.Inject
@@ -17,6 +18,9 @@ import javax.inject.Inject
 class SavingProgressActivity : AppCompatActivity() {
     @Inject
     lateinit var database: AppDatabase
+
+    @Inject
+    lateinit var transectApiService: TransectApiService
     lateinit var dataSource: DataSource
     private lateinit var uploadStatusText: TextView
     private lateinit var retryButton: Button
@@ -24,7 +28,8 @@ class SavingProgressActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as MyApplication).appComponent.inject(this)
         super.onCreate(savedInstanceState)
-        dataSource = ViewModelProvider(viewModelStore, DataSource.FACTORY(database))[DataSource::class.java]
+        dataSource = ViewModelProvider(viewModelStore,
+            DataSource.FACTORY(database, transectApiService))[DataSource::class.java]
         setContentView(R.layout.saving_progress_activity)
 
         // Read all the local transects

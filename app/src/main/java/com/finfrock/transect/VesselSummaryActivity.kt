@@ -11,6 +11,7 @@ import com.finfrock.transect.adapter.VesselSummaryItemAdapter
 import com.finfrock.transect.data.AppDatabase
 import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.VesselSummary
+import com.finfrock.transect.network.TransectApiService
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import javax.inject.Inject
@@ -22,13 +23,15 @@ class VesselSummaryActivity : AppCompatActivity() {
 
     @Inject
     lateinit var database: AppDatabase
+    @Inject
+    lateinit var transectApiService: TransectApiService
     lateinit var dataSource: DataSource
 
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as MyApplication).appComponent.inject(this)
         super.onCreate(savedInstanceState)
 
-        dataSource = ViewModelProvider(viewModelStore, DataSource.FACTORY(database))
+        dataSource = ViewModelProvider(viewModelStore, DataSource.FACTORY(database, transectApiService))
             .get(DataSource::class.java)
         setContentView(R.layout.vessel_summary_activity)
 

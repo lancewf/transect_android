@@ -12,6 +12,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
+        <TextView
+            android:id="@+id/dateTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceHeadline5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="09/09/2022 7:22 AM" />
         <ImageView
             android:id="@+id/icon_count"
             android:layout_width="wrap_content"
@@ -27,17 +35,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@id/icon_count"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dateTime"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:text="5" />
 
         <ImageView
             android:id="@+id/icon_observer1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="200dp"
+            android:layout_marginEnd="120dp"
             android:importantForAccessibility="no"
             app:layout_constraintBottom_toBottomOf="@+id/observerName1"
-            app:layout_constraintStart_toEndOf="@+id/sightingCount"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/observerName1"
             app:srcCompat="@drawable/ic_baseline_person_24" />
 
@@ -45,9 +54,11 @@
             android:id="@+id/observerName1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="Lance"
+            tools:text="Lance Finfrock"
+            app:layout_constraintBottom_toBottomOf="@+id/dateTime"
+            app:layout_constraintTop_toTopOf="@+id/dateTime"
             app:layout_constraintStart_toEndOf="@id/icon_observer1"
-            app:layout_constraintTop_toTopOf="parent" />
+             />
 
         <ImageView
             android:id="@+id/icon_observer2"
@@ -64,7 +75,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            tools:text="Rachel"
+            tools:text="Rachel Finn"
             app:layout_constraintStart_toStartOf="@+id/observerName1"
             app:layout_constraintTop_toBottomOf="@+id/observerName1" />
 
@@ -73,17 +84,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:importantForAccessibility="no"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="@+id/bearingLabel"
-            app:layout_constraintTop_toTopOf="@+id/bearingLabel"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintStart_toEndOf="@+id/sightingCount"
+            app:layout_constraintBottom_toBottomOf="@+id/sightingCount"
+            app:layout_constraintTop_toTopOf="@+id/sightingCount"
             app:srcCompat="@drawable/ic_baseline_explore_24" />
         <TextView
             android:id="@+id/bearingLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             tools:text="90"
+            android:layout_marginLeft="4dp"
             app:layout_constraintStart_toEndOf="@id/icon_bearing"
-            app:layout_constraintTop_toBottomOf="@+id/sightingCount" />
+            app:layout_constraintBottom_toBottomOf="@+id/sightingCount"
+            app:layout_constraintTop_toTopOf="@+id/sightingCount" />
+
+        <ImageView
+            android:id="@+id/icon_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintStart_toEndOf="@+id/bearingLabel"
+            app:layout_constraintBottom_toBottomOf="@+id/bearingLabel"
+            app:layout_constraintTop_toTopOf="@+id/bearingLabel"
+            app:srcCompat="@drawable/ic_baseline_hourglass_bottom_24" />
+
+        <TextView
+            android:id="@+id/durationLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="03:23:02"
+            android:layout_marginLeft="4dp"
+            app:layout_constraintStart_toEndOf="@id/icon_duration"
+            app:layout_constraintBottom_toBottomOf="@+id/bearingLabel"
+            app:layout_constraintTop_toTopOf="@+id/bearingLabel" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

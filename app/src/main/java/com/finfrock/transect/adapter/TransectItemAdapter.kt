@@ -11,6 +11,7 @@ import com.finfrock.transect.TransectSummaryActivity
 import com.finfrock.transect.adapter.holder.TransectItemViewHolder
 import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.model.Transect
+import java.time.ZoneOffset
 
 class TransectItemAdapter(private val context: Context,
                           private val lifecycleOwner: LifecycleOwner,
@@ -40,7 +41,7 @@ class TransectItemAdapter(private val context: Context,
 
     fun updateTransects(newTransects: List<Transect>) {
         transects.clear()
-        transects.addAll(newTransects)
+        transects.addAll(newTransects.sortedBy { it.startDate.toEpochSecond(ZoneOffset.UTC) }.reversed())
         notifyDataSetChanged()
     }
 

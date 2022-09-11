@@ -5,4 +5,7 @@ data class Observer(
     val name: String
 ) {
     override fun toString(): String = name
+    companion object Factory {
+        val NullObserver = Observer("", "")
+    }
 }

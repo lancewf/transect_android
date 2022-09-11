@@ -79,14 +79,21 @@ class StartPageFragment : Fragment() {
 
         val observer2Layout: TextInputLayout = requireView().findViewById(R.id.observer2)
         (observer2Layout.editText as? AutoCompleteTextView)?.setOnItemClickListener { parent, _, position, _ ->
-            selectedObserver2 = parent.getItemAtPosition(position) as Observer
+            val selectedObserver = parent.getItemAtPosition(position) as Observer
+            selectedObserver2 = if (selectedObserver == Observer.NullObserver) {
+                null
+            } else {
+                selectedObserver
+            }
             checkNewTransectButton()
         }
 
         dataSource.getObservers().observe(viewLifecycleOwner){observers ->
-            val observerAdapter = ArrayAdapter(requireView().context, R.layout.list_item, observers)
-            (observer1Layout.editText as? AutoCompleteTextView)?.setAdapter(observerAdapter)
-            (observer2Layout.editText as? AutoCompleteTextView)?.setAdapter(observerAdapter)
+            val observer1Adapter = ArrayAdapter(requireView().context, R.layout.list_item, observers)
+            val observerWithNull = listOf(Observer.NullObserver) + observers
+            val observer2Adapter = ArrayAdapter(requireView().context, R.layout.list_item, observerWithNull )
+            (observer1Layout.editText as? AutoCompleteTextView)?.setAdapter(observer1Adapter)
+            (observer2Layout.editText as? AutoCompleteTextView)?.setAdapter(observer2Adapter)
         }
         val bearingTextField: TextInputEditText = requireView().findViewById(R.id.bearing_edit_text)
         bearingTextField.isDirty

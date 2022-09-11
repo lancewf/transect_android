@@ -9,6 +9,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/vessel_summary_container"
+        android:padding="6dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
@@ -16,6 +17,7 @@
             android:id="@+id/vessel_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
             android:textAppearance="?attr/textAppearanceHeadline4"
             tools:text="Kohola"
             app:layout_constraintStart_toStartOf="parent"
@@ -27,9 +29,8 @@
             android:layout_height="wrap_content"
             android:textAppearance="?attr/textAppearanceBody1"
             tools:text="# Transects: 4"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintStart_toStartOf="@+id/icon_duration"
+            app:layout_constraintTop_toTopOf="@+id/vessel_name"/>
 
         <TextView
             android:id="@+id/vessel_number_sightings"
@@ -37,9 +38,30 @@
             android:layout_height="wrap_content"
             android:textAppearance="?attr/textAppearanceBody1"
             tools:text="# Sightings: 10"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/vessel_number_transects"/>
+            app:layout_constraintStart_toStartOf="@+id/vessel_number_transects"
+            app:layout_constraintBottom_toBottomOf="@+id/vessel_name"
+            />
+
+        <ImageView
+            android:id="@+id/icon_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            android:layout_marginStart="95dp"
+            app:layout_constraintStart_toEndOf="@+id/icon_distance"
+            app:layout_constraintTop_toBottomOf="@+id/vessel_number_sightings"
+            app:srcCompat="@drawable/ic_baseline_hourglass_bottom_24"
+            />
+
+        <TextView
+            android:id="@+id/vessel_total_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceBody1"
+            tools:text="22.48 hrs"
+            app:layout_constraintStart_toEndOf="@+id/icon_duration"
+            app:layout_constraintTop_toBottomOf="@+id/vessel_number_sightings"/>
+
         <TextView
             android:id="@+id/vessel_animals_per_km"
             android:layout_width="wrap_content"
@@ -49,25 +71,25 @@
             android:layout_marginEnd="8dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/vessel_name"/>
-        <TextView
-            android:id="@+id/vessel_total_duration"
+        <ImageView
+            android:id="@+id/icon_distance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceBody1"
-            tools:text="Total Duration: 1:05:57"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/vessel_number_sightings"/>
+            android:importantForAccessibility="no"
+            android:layout_marginStart="150dp"
+            app:layout_constraintStart_toStartOf="@+id/vessel_animals_per_km"
+            app:layout_constraintTop_toBottomOf="@+id/vessel_name"
+            app:srcCompat="@drawable/ic_baseline_straighten_24" />
 
         <TextView
             android:id="@+id/vessel_distance_traveled"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAlignment="center"
             android:textAppearance="?attr/textAppearanceBody1"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/vessel_total_duration"
-            tools:text="Distance Traveled (km): 31.93" />
+            android:layout_marginStart="4dp"
+            app:layout_constraintStart_toEndOf="@+id/icon_distance"
+            app:layout_constraintTop_toTopOf="@+id/icon_distance"
+            tools:text="3,193 km" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>

@@ -45,13 +45,13 @@
         <entry key="app/src/main/res/layout/sighting_item.xml" value="0.5" />
         <entry key="app/src/main/res/layout/sighting_list_item.xml" value="0.27279635258358664" />
         <entry key="app/src/main/res/layout/start.xml" value="0.33229166666666665" />
-        <entry key="app/src/main/res/layout/start_frag.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/start_frag.xml" value="0.33" />
         <entry key="app/src/main/res/layout/summary_frag.xml" value="0.1" />
         <entry key="app/src/main/res/layout/toggle_button_group_table.xml" value="0.2725430597771023" />
-        <entry key="app/src/main/res/layout/transect_list_item.xml" value="0.67" />
-        <entry key="app/src/main/res/layout/transect_summary_activity.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/transect_list_item.xml" value="0.6" />
+        <entry key="app/src/main/res/layout/transect_summary_activity.xml" value="0.5" />
         <entry key="app/src/main/res/layout/vessel_list_item.xml" value="0.5609375" />
-        <entry key="app/src/main/res/layout/vessel_summary_activity.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/vessel_summary_activity.xml" value="0.5" />
         <entry key="app/src/main/res/layout/weather_item.xml" value="0.33" />
         <entry key="app/src/main/res/menu/main_menu.xml" value="0.35" />
         <entry key="app/src/main/res/menu/sightings_menu.xml" value="0.5009259259259259" />

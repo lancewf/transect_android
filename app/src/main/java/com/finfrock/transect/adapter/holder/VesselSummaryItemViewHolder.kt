@@ -27,7 +27,7 @@ class VesselSummaryItemViewHolder(private val view: View): RecyclerView.ViewHold
         numberTransectsTextView.text = "# Transects: ${vessel.numberOfTransects}"
         numberSightsTextView.text = "# Sightings: ${vessel.numberOfSightings}"
         animalPerKmTextView.text = "Animals/km: ${"%,.2f".format(vessel.animalsPerKm)}"
-        totalDurationTextView.text = "Total Duration : ${"%,.2f".format(totalDurationInHours)} hrs"
-        distanceTraveledTextView.text = "Distance Traveled : ${"%,.0f".format(vessel.totalDistanceTraveledKm)} km"
+        totalDurationTextView.text = "${"%,.1f".format(totalDurationInHours)} hrs"
+        distanceTraveledTextView.text = "${"%,.0f".format(vessel.totalDistanceTraveledKm)} km"
     }
 }

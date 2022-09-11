@@ -1,6 +1,7 @@
 package com.finfrock.transect.network
 
 import com.squareup.moshi.Json
+import java.time.Duration
 
 data class RemoteObservation(
     val id:String,
@@ -39,5 +40,10 @@ data class RemoteObserver(
 
 data class RemoteVessel(
     val id:String,
-    val name: String
+    val name: String,
+    @Json(name="number_of_transects") val numberOfTransects: Int,
+    @Json(name="number_of_sightings") val numberOfSightings: Int,
+    @Json(name="total_duration_of_all_transects_secs") val totalDurationOfAllTransectsSec: Int,
+    @Json(name="total_distance_of_all_transects_km") val totalDistanceOfAllTransectsKm: Double,
+    @Json(name="number_of_animals") val numberOfAnimals: Int,
 )

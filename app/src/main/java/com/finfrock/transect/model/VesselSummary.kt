@@ -7,7 +7,7 @@ data class VesselSummary(
     val numberOfSightings: Int,
     val animalsPerKm: Double,
     val totalDistanceTraveledKm: Double,
-    val totalDuration: String
+    val totalDuration: Int
 ) {
     override fun toString(): String = name
 }

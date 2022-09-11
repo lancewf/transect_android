@@ -30,6 +30,7 @@ class RemoteInitializer(val appDatabase: AppDatabase, val transectApiService: Tr
     }
 
     private fun remoteVesselToVesselDb(vessel: RemoteVessel): VesselDb {
-        return VesselDb(vessel.id, vessel.name)
+        return VesselDb(vessel.id, vessel.name, vessel.numberOfTransects, vessel.numberOfSightings,
+            vessel.numberOfAnimals, vessel.totalDurationOfAllTransectsSec, vessel.totalDistanceOfAllTransectsKm)
     }
 }

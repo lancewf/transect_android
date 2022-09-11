@@ -26,7 +26,9 @@ class TransectItemViewHolder(val view: View, private val lifecycleOwner: Lifecyc
                 observer2NameTextView.text = it
             }
 
-        sightingCountTextView.text = "77"
+        dataSource.getAnimalCountForTransect(transect.id).observe(lifecycleOwner) { animalCount ->
+            sightingCountTextView.text = animalCount.toString()
+        }
         bearingTextView.text = transect.bearing.toString()
     }
 

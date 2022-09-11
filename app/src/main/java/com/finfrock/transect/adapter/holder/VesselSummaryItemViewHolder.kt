@@ -6,6 +6,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.finfrock.transect.R
 import com.finfrock.transect.model.VesselSummary
+import kotlin.math.roundToInt
 
 class VesselSummaryItemViewHolder(private val view: View): RecyclerView.ViewHolder(view) {
     private val nameTextView: TextView = view.findViewById(R.id.vessel_name)
@@ -21,11 +22,12 @@ class VesselSummaryItemViewHolder(private val view: View): RecyclerView.ViewHold
     }
 
     fun display(vessel: VesselSummary) {
+        val totalDurationInHours = vessel.totalDuration / 3600.0
         nameTextView.text = vessel.name
         numberTransectsTextView.text = "# Transects: ${vessel.numberOfTransects}"
         numberSightsTextView.text = "# Sightings: ${vessel.numberOfSightings}"
-        animalPerKmTextView.text = "Animals/km: ${vessel.animalsPerKm}"
-        totalDurationTextView.text = "Total Duration: ${vessel.totalDuration}"
-        distanceTraveledTextView.text = "Distance Traveled (km): ${vessel.totalDistanceTraveledKm}"
+        animalPerKmTextView.text = "Animals/km: ${"%,.2f".format(vessel.animalsPerKm)}"
+        totalDurationTextView.text = "Total Duration : ${"%,.2f".format(totalDurationInHours)} hrs"
+        distanceTraveledTextView.text = "Distance Traveled : ${"%,.0f".format(vessel.totalDistanceTraveledKm)} km"
     }
 }

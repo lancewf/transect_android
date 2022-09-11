@@ -81,9 +81,14 @@ class DataSource (private val appDatabase:AppDatabase,
     }
 
     private fun vesselDbToVesselSummary(vesselDb: VesselDb): VesselSummary {
+        val animalsPerKm = if(vesselDb.totalDistanceOfAllTransectsKm > 0)
+            vesselDb.numberOfAnimals /vesselDb.totalDistanceOfAllTransectsKm
+        else 0.0
         return VesselSummary(
-            id = vesselDb.id, name = vesselDb.name, numberOfSightings = 44, numberOfTransects = 11,
-            animalsPerKm = 1.32, totalDistanceTraveledKm = 50.93, totalDuration = "1:35:21"
+            id = vesselDb.id, name = vesselDb.name, numberOfSightings = vesselDb.numberOfSightings,
+            numberOfTransects = vesselDb.numberOfTransects, animalsPerKm = animalsPerKm,
+            totalDistanceTraveledKm = vesselDb.totalDistanceOfAllTransectsKm,
+            totalDuration = vesselDb.totalDurationOfAllTransectsSec
         )
     }
 
@@ -93,6 +98,12 @@ class DataSource (private val appDatabase:AppDatabase,
 
     private fun getTransectFromId(transectId: String): LiveData<Transect?>  {
         return getTransects().map{transects -> transects.map{it.transect}.find{it.id == transectId}}
+    }
+
+    fun getAnimalCountForTransect(transectId: String): LiveData<Int> {
+        return appDatabase.observationDao.getAllLiveData(transectId).map{ obs ->
+            obs.filter{ob -> ob.type == 0}.sumOf { ob -> ob.count }
+        }
     }
 
     fun getTransectWithObservations(transectId: String): LiveData<Pair<Transect?, List<Observation>>> {

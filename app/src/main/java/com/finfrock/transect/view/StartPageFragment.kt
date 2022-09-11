@@ -117,6 +117,10 @@ class StartPageFragment : Fragment() {
         val startTransectButton: Button = requireView().findViewById(R.id.start_new_transect)
         startTransectButton.isEnabled = false
         startTransectButton.setOnClickListener {
+            bearingTextField.text?.clear()
+            (observer1Layout.editText as? AutoCompleteTextView)?.text?.clear()
+            (observer2Layout.editText as? AutoCompleteTextView)?.text?.clear()
+            (vesselLayout.editText as? AutoCompleteTextView)?.text?.clear()
             startTransectActivity(view.context)
         }
 

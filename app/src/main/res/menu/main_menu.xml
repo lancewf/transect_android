@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/unsaved"
-        android:icon="@drawable/ic_saving"
+        android:icon="@drawable/ic_baseline_save_24"
         app:showAsAction="always"
         android:visible="true"
         android:title="Unsaved">

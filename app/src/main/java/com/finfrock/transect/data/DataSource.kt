@@ -204,7 +204,7 @@ class DataSource (private val appDatabase:AppDatabase,
             val transectDbs = appDatabase.transectDao.getAllNonLive().
                 filter { transectDb -> transectDb.localOnly }
 
-            statusText.value = "Starting to save ${transectDbs.size} Transects"
+            statusText.value = "Starting to save ${transectDbs.size} transect(s)"
             val transectPairs = transectDbs.map{ transectDb ->
                 val obs = appDatabase.observationDao.getAll(transectDb.id).
                     sortedBy { it.datetime }.
@@ -217,17 +217,16 @@ class DataSource (private val appDatabase:AppDatabase,
                 val (remoteTransect, transectDb) = transectPair
                 val errorMessage = saveRemoteAndTest(remoteTransect)
                 if (errorMessage != null) {
-                    statusText.value = "Error saving Transects: $errorMessage"
                     status.value = UploadStatus.FAILED
                     break
                 } else {
                     appDatabase.transectDao.updateLocalOnly(transectDb.id, false)
-                    statusText.value = "Saving ${index + 1} of ${transectPairs.size} Transects"
+                    statusText.value = "Saving ${index + 1} of ${transectPairs.size} transect(s)"
                 }
             }
 
             if (status.value != UploadStatus.FAILED ) {
-                statusText.value = "Finished Saving ${transectPairs.size} Transects"
+                statusText.value = "Finished saving ${transectPairs.size} transect(s)"
                 status.value = UploadStatus.COMPLETE
             }
         }

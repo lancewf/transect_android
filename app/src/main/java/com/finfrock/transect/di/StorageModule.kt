@@ -1,11 +1,8 @@
 package com.finfrock.transect.di
 
 import android.content.Context
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStore
 import com.finfrock.transect.RemoteInitializer
 import com.finfrock.transect.data.AppDatabase
-import com.finfrock.transect.data.DataSource
 import com.finfrock.transect.network.TransectApi
 import com.finfrock.transect.network.TransectApiService
 import dagger.Module

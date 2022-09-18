@@ -14,6 +14,7 @@
         <entry key="app/src/main/res/drawable/ic_baseline_calculate_24.xml" value="0.168" />
         <entry key="app/src/main/res/drawable/ic_baseline_delete_24.xml" value="0.1895" />
         <entry key="app/src/main/res/drawable/ic_baseline_directions_boat_24.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/ic_baseline_error_24.xml" value="0.122" />
         <entry key="app/src/main/res/drawable/ic_baseline_explore_24.xml" value="0.142" />
         <entry key="app/src/main/res/drawable/ic_baseline_flag_24.xml" value="0.1895" />
         <entry key="app/src/main/res/drawable/ic_baseline_groups_24.xml" value="0.2655" />
@@ -25,6 +26,7 @@
         <entry key="app/src/main/res/drawable/ic_baseline_person_outline_24.xml" value="0.142" />
         <entry key="app/src/main/res/drawable/ic_baseline_question_mark_24.xml" value="0.1895" />
         <entry key="app/src/main/res/drawable/ic_baseline_remove_red_eye_24.xml" value="0.1895" />
+        <entry key="app/src/main/res/drawable/ic_baseline_save_24.xml" value="0.127" />
         <entry key="app/src/main/res/drawable/ic_baseline_stop_24.xml" value="0.1895" />
         <entry key="app/src/main/res/drawable/ic_baseline_straighten_24.xml" value="0.1895" />
         <entry key="app/src/main/res/drawable/ic_baseline_water_24.xml" value="0.1895" />
@@ -41,7 +43,7 @@
         <entry key="app/src/main/res/layout/main_fragment.xml" value="0.5458333333333333" />
         <entry key="app/src/main/res/layout/main_menu.xml" value="0.5609375" />
         <entry key="app/src/main/res/layout/running_transect_activity.xml" value="0.5705128205128205" />
-        <entry key="app/src/main/res/layout/saving_progress_activity.xml" value="0.17407407407407408" />
+        <entry key="app/src/main/res/layout/saving_progress_activity.xml" value="0.5" />
         <entry key="app/src/main/res/layout/sighting_item.xml" value="0.5" />
         <entry key="app/src/main/res/layout/sighting_list_item.xml" value="0.27279635258358664" />
         <entry key="app/src/main/res/layout/start.xml" value="0.33229166666666665" />

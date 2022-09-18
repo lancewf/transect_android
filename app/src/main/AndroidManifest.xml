@@ -43,8 +43,8 @@
         </activity>
         <activity
             android:name=".RunningTransectActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true"
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".VesselSummaryActivity"
             android:exported="true">
@@ -55,7 +55,7 @@
         </activity>
         <activity
             android:name=".SavingProgressActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true"
+            android:parentActivityName=".MainActivity" />
     </application>
 </manifest>

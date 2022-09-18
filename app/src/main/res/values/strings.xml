@@ -12,4 +12,8 @@
     <string name="criteria4">4. Glare on water of less than 50% (90 of 180 degrees arc being viewed).</string>
     <string name="criteria5">5. Use of an observer(s) with required training.</string>
     <string name="criteria_overview">If these conditions are met and able to proceed, please select the Start tab and log-in your vessel and observer(s).</string>
+    <string name="channel_name">Unsaved Transect</string>
+    <string name="channel_description">Notification if the transect was not saved remotely</string>
+    <string name="notification_title">Unsaved Transect(s)</string>
+    <string name="notification_message">Click to save transects</string>
 </resources>

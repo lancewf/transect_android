@@ -68,6 +68,7 @@ class RunningTransectActivity : AppCompatActivity() {
     private lateinit var counter: CountUpTimer
     private var resumedObservations:List<Observation> = emptyList()
     private var resumed = false
+    private lateinit var pagerTextView: TextView
 
     private val requestPermissionLauncher =
         registerForActivityResult(
@@ -167,7 +168,7 @@ class RunningTransectActivity : AppCompatActivity() {
             layoutManager = sightingLayoutManager
             adapter = sightingAdapter
         }
-        val pagerTextView: TextView = findViewById(R.id.active_record_text)
+        pagerTextView = findViewById(R.id.active_record_text)
         pagerViewer = PagerViewer(pagerTextView, observationBuilder)
 
         PagerSnapHelper().attachToRecyclerView(recyclerView)
@@ -242,13 +243,23 @@ class RunningTransectActivity : AppCompatActivity() {
         toolBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.action_stop -> {
+                    pagerTextView.text = "Saving..."
                     counter.stop()
                     val transectStopDate = LocalDateTime.now()
                     locationProxy.getLocation().addOnSuccessListener { transectStopLatLon ->
                         val transect = createFinishedTransect(transectStopLatLon, transectStopDate)
                         dataSource.addTransect(transect){
-                            startSavingProgressActivity()
-                            finish()
+                            val alert: AlertDialog.Builder = AlertDialog.Builder( this )
+                            alert.setTitle("Success")
+                            alert.setMessage("Transect completed")
+                            alert.setPositiveButton("Ok"
+                            ) { dialog, _ ->
+                                dialog.dismiss()
+                                startSavingProgressActivity()
+                                finish()
+                            }
+
+                            alert.show()
                         }
                     }
                     true

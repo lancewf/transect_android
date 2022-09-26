@@ -3,6 +3,7 @@ package com.finfrock.transect
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
@@ -24,6 +25,7 @@ class SavingProgressActivity : AppCompatActivity() {
     private lateinit var uploadStatusText: TextView
     private lateinit var uploadStatusTitleText: TextView
     private lateinit var retryButton: Button
+    private lateinit var errorImage: ImageView
     private val unsavedTransectNotificationId = 77
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +42,7 @@ class SavingProgressActivity : AppCompatActivity() {
         uploadStatusText = findViewById(R.id.uploadStatus)
         retryButton = findViewById(R.id.retryButton)
         uploadStatusTitleText = findViewById(R.id.uploadStatusTitle)
+        errorImage= findViewById(R.id.icon_error)
         uploadStatusTitleText.text = "Saving Transects"
 
         val actionBar = findViewById<MaterialToolbar>(R.id.topAppBar)
@@ -61,8 +64,8 @@ class SavingProgressActivity : AppCompatActivity() {
         runUpdate()
     }
 
-
     private fun runUpdate() {
+        errorImage.setImageResource(R.drawable.ic_big_fish_124)
         val (status, statusText) = dataSource.savaAllRemote()
         statusText.observe(this) { uploadStatusText.text = it }
         status.observe(this) { when (it) {
@@ -76,13 +79,15 @@ class SavingProgressActivity : AppCompatActivity() {
                     notify(unsavedTransectNotificationId, builder.build())
                 }
                 uploadStatusTitleText.text = "Warning"
-                uploadStatusText.text = "Transect(s) are saved to your phone but not uploaded to server.\n\nPlease return to this app when internet is available and click the 'disk icon' to upload your transect(s) to the server. "
+                uploadStatusText.text = "Transect(s) are saved to your phone but not uploaded to server.\n\nPlease return to this app when internet is available and click the disk icon in the upper right corner to upload your transect(s) to the server."
+                errorImage.setImageResource(R.drawable.ic_baseline_error_124)
             }
             DataSource.UploadStatus.COMPLETE -> {
                 with(NotificationManagerCompat.from(this)) {
                     cancel(unsavedTransectNotificationId)
                 }
                 uploadStatusTitleText.text = "Transect(s) successfully saved to server"
+                errorImage.setImageResource(R.drawable.ic_big_fish_124)
             }
         } }
     }

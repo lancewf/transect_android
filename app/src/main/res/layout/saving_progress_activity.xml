@@ -25,25 +25,34 @@
         android:paddingStart="30sp"
         >
 
+        <ImageView
+            android:id="@+id/icon_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            android:layout_marginTop="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_big_fish_124" />
+
         <TextView
             android:id="@+id/uploadStatusTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.496"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.225"
+            android:layout_marginTop="30sp"
+            app:layout_constraintTop_toBottomOf="@+id/icon_error"
             tools:text="Transect successfully completed" />
 
         <TextView
             android:id="@+id/uploadStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="Transect(s) are saved to your phone but not uploaded to server.\n\nPlease return to this app when internet is available and click the 'disk icon' to upload your transect(s) to the server. "
+            tools:text="Transect(s) are saved to your phone but not uploaded to server.\n\nPlease return to this app when internet is available and click the disk icon in the upper right corner to upload your transect(s) to the server. "
             android:layout_marginTop="10sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

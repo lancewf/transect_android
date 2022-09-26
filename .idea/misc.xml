@@ -14,6 +14,7 @@
         <entry key="app/src/main/res/drawable/ic_baseline_calculate_24.xml" value="0.168" />
         <entry key="app/src/main/res/drawable/ic_baseline_delete_24.xml" value="0.1895" />
         <entry key="app/src/main/res/drawable/ic_baseline_directions_boat_24.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/ic_baseline_error_124.xml" value="0.1955" />
         <entry key="app/src/main/res/drawable/ic_baseline_error_24.xml" value="0.122" />
         <entry key="app/src/main/res/drawable/ic_baseline_explore_24.xml" value="0.142" />
         <entry key="app/src/main/res/drawable/ic_baseline_flag_24.xml" value="0.1895" />
@@ -32,6 +33,7 @@
         <entry key="app/src/main/res/drawable/ic_baseline_water_24.xml" value="0.1895" />
         <entry key="app/src/main/res/drawable/ic_baseline_wb_sunny_24.xml" value="0.537" />
         <entry key="app/src/main/res/drawable/ic_bigfish.xml" value="0.2655" />
+        <entry key="app/src/main/res/drawable/ic_bigfish124.xml" value="0.212" />
         <entry key="app/src/main/res/drawable/ic_bigfish2.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/ic_foreground.xml" value="0.5765625" />
         <entry key="app/src/main/res/drawable/ic_icons8_sun.xml" value="0.467" />

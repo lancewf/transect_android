@@ -156,8 +156,8 @@ class RunningTransectActivity : AppCompatActivity() {
     }
 
     private fun preInitialize() {
-//        locationProxy = MockLocationProxy()
-        locationProxy = LocationProxy(this, LocationServices.getFusedLocationProviderClient(this))
+        locationProxy = MockLocationProxy()
+//        locationProxy = LocationProxy(this, LocationServices.getFusedLocationProviderClient(this))
 
         val recyclerView = findViewById<RecyclerView>(R.id.sighting_view)
 

@@ -106,13 +106,35 @@ class ObservationBuilder {
 
     fun createNewWeatherObservation(): String {
         val id = UUID.randomUUID().toString()
+        val (beaufort, weather) = getLatestBeaufortWeather()
         sightings.add(WeatherObservationMutable(
             id,
             datetime = LocalDateTime.now(),
+            beaufort = beaufort,
+            weather = weather
         ))
         listeners.forEach{it()}
 
         return id
+    }
+
+    private fun getLatestBeaufortWeather():Pair<Int?, Int?> {
+        val weatherOb = getLatestWeatherObservation()
+
+        return if (weatherOb != null) {
+            Pair(weatherOb.beaufort, weatherOb.weather)
+        } else {
+            Pair(null, null)
+        }
+    }
+
+    private fun getLatestWeatherObservation():  WeatherObservationMutable? {
+        val ob:ObservationMutable? = sightings.filterIsInstance<WeatherObservationMutable>().lastOrNull()
+        return if (ob != null) {
+           ob as WeatherObservationMutable
+        } else {
+           null
+        }
     }
 
     fun createNewSighting(): String {
